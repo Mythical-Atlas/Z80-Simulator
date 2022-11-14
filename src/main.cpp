@@ -1,5 +1,8 @@
 #include <iostream>
-#include <vulkan/vulkan.h>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 int main() {
     VkApplicationInfo appInfo = {};
@@ -14,11 +17,18 @@ int main() {
     VkInstance instance;
     VkResult result = vkCreateInstance(&instanceInfo, 0, &instance);
 
-    if(result == VK_SUCCESS) {std::cout <<  "Successfully created vulkan instance" << std::endl;}
+    if(result == VK_SUCCESS) {std::cout <<  "Successfully created Vulkan instance" << std::endl;}
     else {
-        std::cout << "Failed to create vulkan instance" << std::endl;
-        return 1;
+        std::cout << "Failed to create Vulkan instance" << std::endl;
+        return -1;
     }
+
+    if(glfwInit()) {std::cout <<  "Successfully initialized GLFW" << std::endl;}
+    else {
+        std::cout << "Failed to initialize GLFW" << std::endl;
+        return -1;
+    }
+
 
     return 0;
 }
