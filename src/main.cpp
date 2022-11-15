@@ -35,10 +35,11 @@ std::vector<VkImage> swapChainImages;
 std::vector<VkImageView> swapChainImageViews;
 VkRenderPass renderPass;
 VkPipelineLayout pipelineLayout;
+VkPipeline graphicsPipeline;
 
 void initGraphics();
 void mainLoop();
-void exitGraphics();
+void freeGraphics();
 
 VkShaderModule createShaderModule(std::vector<char> code);
 
@@ -49,7 +50,7 @@ int main() {
 
     mainLoop();
 
-    exitGraphics();
+    freeGraphics();
 
     return 0;
 }
@@ -557,19 +558,42 @@ void initGraphics() {
     colorBlending.blendConstants[2] = 0.0f;
     colorBlending.blendConstants[3] = 0.0f;
 
-    // pipeline settings
+    // pipeline layout settings
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-    // try to create pipeline
+    // try to create pipeline layout
     if(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
         std::cout << "Failed to create pipeline layout" << std::endl;
         exit(-1);
     }
 
-    // free shader module resources (no longer needed)
+    // pipeline settings
+    // passing shader stages to pipeline
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = &dynamicState;
+    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.subpass = 0;
+
+    // try to create graphics pipeline
+    if(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        std::cout << "Failed to create graphics pipeline" << std::endl;
+        exit(-1);
+    }
+
+    // free shader module resources (no longer needed now that pipeline has shader stages loaded)
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
@@ -580,8 +604,9 @@ void mainLoop() {
     }
 }
 
-void exitGraphics() {
+void freeGraphics() {
     // free vulkan resources
+    vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
     for (int i = 0; i < swapChainImageViews.size(); i++) {vkDestroyImageView(device, swapChainImageViews[i], nullptr);}
