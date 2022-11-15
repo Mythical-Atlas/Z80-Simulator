@@ -33,6 +33,7 @@ VkExtent2D swapChainExtent;
 VkSwapchainKHR swapChain;
 std::vector<VkImage> swapChainImages;
 std::vector<VkImageView> swapChainImageViews;
+VkRenderPass renderPass;
 VkPipelineLayout pipelineLayout;
 
 void initGraphics();
@@ -107,6 +108,31 @@ void initGraphics() {
         exit(-1);
     }
 
+    /*--------------------SURFACE--------------------*/
+
+    // set surface create info
+    // windows specific - different for each platform
+    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
+    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    surfaceCreateInfo.hwnd = glfwGetWin32Window(window);
+    surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
+
+    // create vulkan surface
+    // throw error if fails
+    if(vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, nullptr, &surface) == VK_SUCCESS) {std::cout <<  "Successfully created window surface (Vulkan)" << std::endl;}
+    else {
+        std::cout << "Failed to create window surface (Vulkan)" << std::endl;
+        exit(-1);
+    }
+
+    // create glfw surface
+    // throw error if fails
+    if(glfwCreateWindowSurface(instance, window, nullptr, &surface) == VK_SUCCESS) {std::cout <<  "Successfully created window surface (GLFW)" << std::endl;}
+    else {
+        std::cout << "Failed to create window surface (GLFW)" << std::endl;
+        exit(-1);
+    }
+
     /*--------------------PHYSICAL DEVICE--------------------*/
 
     // count gpus that support vulkan
@@ -141,31 +167,6 @@ void initGraphics() {
             physicalDevice = devices[d];
             break;
         }
-    }
-
-    /*--------------------SURFACE--------------------*/
-
-    // set surface create info
-    // windows specific - different for each platform
-    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
-    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.hwnd = glfwGetWin32Window(window);
-    surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
-
-    // create vulkan surface
-    // throw error if fails
-    if(vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, nullptr, &surface) == VK_SUCCESS) {std::cout <<  "Successfully created window surface (Vulkan)" << std::endl;}
-    else {
-        std::cout << "Failed to create window surface (Vulkan)" << std::endl;
-        exit(-1);
-    }
-
-    // create glfw surface
-    // throw error if fails
-    if(glfwCreateWindowSurface(instance, window, nullptr, &surface) == VK_SUCCESS) {std::cout <<  "Successfully created window surface (GLFW)" << std::endl;}
-    else {
-        std::cout << "Failed to create window surface (GLFW)" << std::endl;
-        exit(-1);
     }
 
     /*--------------------QUEUE FAMILIES--------------------*/
@@ -451,6 +452,48 @@ void initGraphics() {
     // this is for the pipeline creation later
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
+    /*--------------------RENDER PASS--------------------*/
+
+    // color attachment settings (multisampling, stenciling, image layout)
+    // currently 1 sample and no stenciling
+    VkAttachmentDescription colorAttachment{};
+    colorAttachment.format = swapChainImageFormat.format;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // clear framebuffer to black before rendering
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // store resulting frame for display
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    // color attachment reference settings
+    // referenced by fragment shader
+    VkAttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    // subpass settings
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    // render pass settings
+    // passes color attachments and subpasses to the render pass
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    // try to create render pass
+    if(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        std::cout << "Failed to create render pass" << std::endl;
+        exit(-1);
+    }
+
+    /*--------------------GRAPHICS PIPELINE--------------------*/
+
     // specifying the format of the vertex data we'll pass later
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -526,7 +569,7 @@ void initGraphics() {
         exit(-1);
     }
 
-    // free shader module resources (no longer needed now that .......)
+    // free shader module resources (no longer needed)
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
@@ -539,6 +582,8 @@ void mainLoop() {
 
 void exitGraphics() {
     // free vulkan resources
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    vkDestroyRenderPass(device, renderPass, nullptr);
     for (int i = 0; i < swapChainImageViews.size(); i++) {vkDestroyImageView(device, swapChainImageViews[i], nullptr);}
     vkDestroySwapchainKHR(device, swapChain, nullptr);
     vkDestroyDevice(device, nullptr);
