@@ -14,6 +14,7 @@ Last updated: 11-14-2022
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 #include <vector>
+#include <fstream>
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -37,6 +38,10 @@ void initGraphics();
 void mainLoop();
 void exitGraphics();
 
+VkShaderModule createShaderModule(std::vector<char> code);
+
+static std::vector<char> readFile(std::string filename);
+
 int main() {
     initGraphics();
 
@@ -48,6 +53,8 @@ int main() {
 }
 
 void initGraphics() {
+    /*--------------------INITIALIZATION--------------------*/
+    
     // try to init glfw
     // throw error if glfw fails to init
     if(glfwInit()) {std::cout <<  "Successfully initialized GLFW" << std::endl;}
@@ -63,6 +70,8 @@ void initGraphics() {
     // actually init window
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
 
+    /*--------------------APP--------------------*/
+
     // set vulkan application info parameters
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -71,6 +80,8 @@ void initGraphics() {
     appInfo.pEngineName = "Correll Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
+
+    /*--------------------INSTANCE--------------------*/
 
     // set instance creation parameters
     VkInstanceCreateInfo instanceCreateInfo = {};
@@ -94,6 +105,8 @@ void initGraphics() {
         std::cout << "Failed to create Vulkan instance" << std::endl;
         exit(-1);
     }
+
+    /*--------------------PHYSICAL DEVICE--------------------*/
 
     // count gpus that support vulkan
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -129,6 +142,8 @@ void initGraphics() {
         }
     }
 
+    /*--------------------SURFACE--------------------*/
+
     // set surface create info
     // windows specific - different for each platform
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
@@ -151,6 +166,8 @@ void initGraphics() {
         std::cout << "Failed to create window surface (GLFW)" << std::endl;
         exit(-1);
     }
+
+    /*--------------------QUEUE FAMILIES--------------------*/
 
     // get the number of queue families supported by the device
     uint32_t queueFamilyCount = 0;
@@ -220,6 +237,8 @@ void initGraphics() {
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
+    /*--------------------LOGICAL DEVICE--------------------*/
+
     // we don't need any special features, so this is empty
     VkPhysicalDeviceFeatures deviceFeatures = {};
 
@@ -250,6 +269,8 @@ void initGraphics() {
     vkGetDeviceQueue(device, uniqueQueueFamilies[0], 0, &graphicsQueue);
     if(graphicsQFIndex.value == presentQFIndex.value) {vkGetDeviceQueue(device, uniqueQueueFamilies[1], 0, &presentQueue);}
     else {vkGetDeviceQueue(device, uniqueQueueFamilies[1], 0, &presentQueue);}
+
+    /*--------------------SWAP CHAIN--------------------*/
 
     // init variables to hold swap chain info
     VkSurfaceCapabilitiesKHR capabilities;
@@ -400,6 +421,45 @@ void initGraphics() {
     }
 
     std::cout <<  "Successfully created " << swapChainImages.size() << " swap chain image views" << std::endl;
+
+    /*--------------------SHADERS--------------------*/
+
+    // open shader files
+    std::vector<char> vertShaderCode = readFile("shaders/vert.spv");
+    std::vector<char> fragShaderCode = readFile("shaders/frag.spv");
+
+    // load the code into shader modules
+    VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+    VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+
+    // creation settings for vertex shader stage
+    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertShaderStageInfo.module = vertShaderModule;
+    vertShaderStageInfo.pName = "main";
+
+    // creation settings for fragment shader stage
+    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragShaderStageInfo.module = fragShaderModule;
+    fragShaderStageInfo.pName = "main";
+
+    // store the creation settings for the shader stages in an array
+    // this is for the pipeline creation later
+    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+
+
+
+
+
+
+
+
+    // free shader module resources (no longer needed now that .......)
+    vkDestroyShaderModule(device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
 void mainLoop() {
@@ -419,4 +479,41 @@ void exitGraphics() {
     // free glfw resources
     glfwDestroyWindow(window);
     glfwTerminate();
+}
+
+VkShaderModule createShaderModule(std::vector<char> code) {
+    // settings for creating the shader module
+    VkShaderModuleCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = code.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+    // try to create the shader module, throw error if it fails
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        std::cout << "Failed to create shader module" << std::endl;
+        exit(-1);
+    }
+
+    return shaderModule;
+}
+
+static std::vector<char> readFile(std::string filePath) {
+    // open file, throw error if fails
+    std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+    if(!file.is_open()) {
+        std::cout << "Failed to open file: " << filePath << std::endl;
+        exit(-1);
+    }
+
+    // create vector to hold data (seeks to end of file stream to get size of file)
+    uint32_t fileSize = (uint32_t)file.tellg();
+    std::vector<char> buffer(fileSize);
+
+    // go to beginning of file and read data
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+    file.close();
+
+    return buffer;
 }
