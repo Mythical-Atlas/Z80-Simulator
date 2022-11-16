@@ -9,6 +9,4 @@ SET includes=/Isrc /I%VULKAN_SDK%/Include /Iinclude
 SET links=/link /LIBPATH:%VULKAN_SDK%/Lib vulkan-1.lib /LIBPATH:lib glfw3dll.lib
 SET defines=/D DEBUG
 
-echo "Building main..."
-
 cl /EHsc %includes% %defines% src/main.cpp %links%
