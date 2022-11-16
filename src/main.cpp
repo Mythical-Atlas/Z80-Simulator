@@ -51,6 +51,7 @@ std::vector<VkSemaphore> imageAvailableSemaphores;
 std::vector<VkSemaphore> renderFinishedSemaphores;
 std::vector<VkFence> inFlightFences;
 uint32_t currentFrame = 0;
+bool framebufferResized = false;
 
 void initGraphics();
 void freeGraphics();
@@ -64,7 +65,9 @@ void drawFrame();
 
 void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
-VkShaderModule createShaderModule(std::vector<char> code);
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
+static VkShaderModule createShaderModule(std::vector<char> code);
 
 static std::vector<char> readFile(std::string filename);
 
@@ -91,10 +94,12 @@ void initGraphics() {
 
     // tell glfw not to create opengl context since we're using vulkan
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     // actually init window
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
+    //glfwSetWindowUserPointer(window, this); // needed if inside of class
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
     /*--------------------APP--------------------*/
 
@@ -773,13 +778,24 @@ void drawFrame() {
     // wait for previous frame to finish so that semaphores and command buffers are available to use
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
-    // reset fence once finished waiting
-    vkResetFences(device, 1, &inFlightFences[currentFrame]);
-
     // get an image from the swap chain
     // uses semaphore to make the gpu wait for an image to be available
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    // check if swap chain is out of date
+    // recreate swap chain and skip this frame if it is
+    if(result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreateSwapChain();
+        return;
+    }
+    else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        std::cout << "Failed to aquire swap chain image" << std::endl;
+        exit(-1);
+    }
+
+    // reset fence once finished waiting
+    vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
     // reset the command buffer
     vkResetCommandBuffer(commandBuffers[currentFrame], 0);
@@ -819,7 +835,19 @@ void drawFrame() {
     presentInfo.pImageIndices = &imageIndex;
 
     // submit request to present image to the swap chain
-    vkQueuePresentKHR(presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+    // check if swapchain is out of date
+    // recreate swap chain and skip this frame if it is
+    if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+        framebufferResized = false;
+        recreateSwapChain();
+        return;
+    }
+    else if(result != VK_SUCCESS) {
+        std::cout << "Failed to present swap chain image" << std::endl;
+        exit(-1);
+    }
 
     // advance frame
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -883,7 +911,9 @@ void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
     }
 }
 
-VkShaderModule createShaderModule(std::vector<char> code) {
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {framebufferResized = true;}
+
+static VkShaderModule createShaderModule(std::vector<char> code) {
     // settings for creating the shader module
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
