@@ -747,6 +747,15 @@ void createSwapChain() {
 }
 
 void recreateSwapChain() {
+    // if the window is minimized (the size of the frame buffer will be 0), pause execution
+    int width = 0;
+    int height = 0;
+    glfwGetFramebufferSize(window, &width, &height);
+    while(width == 0 || height == 0) {
+        glfwGetFramebufferSize(window, &width, &height);
+        glfwWaitEvents();
+    }
+
     // wait for the swap chain to not be in use
     vkDeviceWaitIdle(device);
 
