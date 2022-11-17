@@ -747,10 +747,12 @@ void createSwapChain() {
 }
 
 void recreateSwapChain() {
-    // if the window is minimized (the size of the frame buffer will be 0), pause execution
+    // get the size of the frame buffer
     int width = 0;
     int height = 0;
     glfwGetFramebufferSize(window, &width, &height);
+
+    // if the window is minimized (the size of the frame buffer will be 0), pause execution
     while(width == 0 || height == 0) {
         glfwGetFramebufferSize(window, &width, &height);
         glfwWaitEvents();
