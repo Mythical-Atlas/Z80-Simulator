@@ -6,8 +6,9 @@ Last updated: 11-16-2022
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
+
+#include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
 #include <iostream>
@@ -15,6 +16,8 @@ Last updated: 11-16-2022
 #include <glm/mat4x4.hpp>
 #include <vector>
 #include <fstream>
+
+#include "vertex.hpp"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -45,6 +48,8 @@ VkRenderPass renderPass;
 VkPipelineLayout pipelineLayout;
 VkPipeline graphicsPipeline;
 std::vector<VkFramebuffer> swapChainFramebuffers;
+VkBuffer vertexBuffer;
+VkDeviceMemory vertexBufferMemory;
 VkCommandPool commandPool;
 std::vector<VkCommandBuffer> commandBuffers;
 std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -384,11 +389,17 @@ void initGraphics() {
 
     /*--------------------GRAPHICS PIPELINE--------------------*/
 
-    // specifying the format of the vertex data we'll pass later
+    // get the vertex binding and attribute info
+    VkVertexInputBindingDescription bindingDescription = Vertex::getBindingDescription();
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = Vertex::getAttributeDescriptions();
+
+    // specifying the format of the vertex data
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     // specifying what type of geometry we plan to draw (lists of triangles)
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -487,6 +498,72 @@ void initGraphics() {
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
+    /*--------------------VERTEX BUFFER--------------------*/
+
+    // vertex buffer settings
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    // try to create vertex buffer
+    if(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS) {
+        std::cout << "Failed to create vertex buffer" << std::endl;
+        exit(-1);
+    }
+
+    // getting the moemory requirements for the vertex buffer
+    // fields:
+    // - size
+    // - alignment
+    // - suitable memory types
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+
+    // getting the memory properties of the gpu
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+    // find a suitable memory type
+    uint32_t memoryTypeFilter = memRequirements.memoryTypeBits;
+    VkMemoryPropertyFlags memoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    Optional memoryType;
+    for(int i = 0; i < memProperties.memoryTypeCount; i++) {
+        // check if memory type is suitable (type filter) and check if we can map the memory so it's visible to the cpu (properties flags)
+        if((memoryTypeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & memoryProperties) == memoryProperties) {
+            memoryType.value = i;
+            memoryType.exists = true;
+        }
+    }
+
+    // throw an error if a memory type wasn't found
+    if(!memoryType.exists) {
+        std::cout << "Failed to find suitable memory type" << std::endl;
+        exit(-1);
+    }
+
+    // buffer memory allocation info
+    VkMemoryAllocateInfo memAllocInfo{};
+    memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memAllocInfo.allocationSize = memRequirements.size;
+    memAllocInfo.memoryTypeIndex = memoryType.value;
+
+    // try to allocate memory
+    if(vkAllocateMemory(device, &memAllocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
+        std::cout << "Failed to allocate vertex buffer memory" << std::endl;
+        exit(-1);
+    }
+
+    // bind the memory we just allocated to the vertex buffer
+    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+    // write the vertex data to the vbo
+    void* data;
+    vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+    vkUnmapMemory(device, vertexBufferMemory);
+
     /*--------------------COMMAND BUFFERS--------------------*/
 
     // command pool settings
@@ -555,6 +632,8 @@ void freeGraphics() {
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     freeSwapChain();
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
@@ -909,8 +988,13 @@ void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
     scissor.extent = swapChainExtent;
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    // draw a triangle
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    // bind the vbo
+    VkBuffer vertexBuffers[] = {vertexBuffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+    // draw the vertices in the vbo
+    vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
     // end the render pass
     vkCmdEndRenderPass(commandBuffer);
