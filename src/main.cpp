@@ -69,12 +69,15 @@ void mainLoop();
 void drawFrame();
 
 void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 static VkShaderModule createShaderModule(std::vector<char> code);
 
 static std::vector<char> readFile(std::string filename);
+
+static void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
 int main() {
     initGraphics();
@@ -498,72 +501,6 @@ void initGraphics() {
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-    /*--------------------VERTEX BUFFER--------------------*/
-
-    // vertex buffer settings
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    // try to create vertex buffer
-    if(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS) {
-        std::cout << "Failed to create vertex buffer" << std::endl;
-        exit(-1);
-    }
-
-    // getting the moemory requirements for the vertex buffer
-    // fields:
-    // - size
-    // - alignment
-    // - suitable memory types
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
-
-    // getting the memory properties of the gpu
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
-    // find a suitable memory type
-    uint32_t memoryTypeFilter = memRequirements.memoryTypeBits;
-    VkMemoryPropertyFlags memoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    Optional memoryType;
-    for(int i = 0; i < memProperties.memoryTypeCount; i++) {
-        // check if memory type is suitable (type filter) and check if we can map the memory so it's visible to the cpu (properties flags)
-        if((memoryTypeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & memoryProperties) == memoryProperties) {
-            memoryType.value = i;
-            memoryType.exists = true;
-        }
-    }
-
-    // throw an error if a memory type wasn't found
-    if(!memoryType.exists) {
-        std::cout << "Failed to find suitable memory type" << std::endl;
-        exit(-1);
-    }
-
-    // buffer memory allocation info
-    VkMemoryAllocateInfo memAllocInfo{};
-    memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    memAllocInfo.allocationSize = memRequirements.size;
-    memAllocInfo.memoryTypeIndex = memoryType.value;
-
-    // try to allocate memory
-    if(vkAllocateMemory(device, &memAllocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
-        std::cout << "Failed to allocate vertex buffer memory" << std::endl;
-        exit(-1);
-    }
-
-    // bind the memory we just allocated to the vertex buffer
-    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
-
-    // write the vertex data to the vbo
-    void* data;
-    vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
-    vkUnmapMemory(device, vertexBufferMemory);
-
     /*--------------------COMMAND BUFFERS--------------------*/
 
     // command pool settings
@@ -591,6 +528,33 @@ void initGraphics() {
         std::cout << "Failed to allocate command buffer(s)" << std::endl;
         exit(-1);
     }
+
+    /*--------------------VERTEX BUFFER--------------------*/
+
+    // staging buffer and memory
+    // the staging buffer is what the cpu accesses, while the actual vertex buffer is only visible to the gpu
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    // create staging buffer
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    // write the vertex data to the vbo
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t)bufferSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    // create vertex buffer
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+    // make the gpu copy the data from the staging buffer to the vertex buffer
+    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+    // free the staging buffer's resources
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
 
     /*--------------------SYNCHRONIZATION--------------------*/
 
@@ -1005,6 +969,45 @@ void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
         exit(-1);
     }
 }
+void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+    // buffer allocation settings
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    // allocate a temporary command buffer for gpu memory transfer operations
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+    // begin recording the command buffer
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    // send the command to copy the source buffer to the destination buffer
+    VkBufferCopy copyRegion{};
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    // end recording command buffer
+    vkEndCommandBuffer(commandBuffer);
+
+    // submit the command buffer
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+
+    // make the cpu wait until the operation finishes executing before continuing
+    vkQueueWaitIdle(graphicsQueue);
+
+    // free the command buffer's resources
+    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {framebufferResized = true;}
 
@@ -1043,4 +1046,62 @@ static std::vector<char> readFile(std::string filePath) {
     file.close();
 
     return buffer;
+}
+
+static void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+    // buffer settings
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    // try to create buffer
+    if(vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        std::cout << "Failed to create buffer" << std::endl;
+        exit(-1);
+    }
+
+    // getting the memory requirements for the buffer
+    // fields:
+    // - size
+    // - alignment
+    // - suitable memory types
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+
+    // getting the memory properties of the gpu
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+    // find a suitable memory type
+    Optional memoryType;
+    for(int i = 0; i < memProperties.memoryTypeCount; i++) {
+        // check if memory type is suitable (type bits) and check if we can map the memory so it's visible to the cpu (properties flags)
+        if((memRequirements.memoryTypeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            memoryType.value = i;
+            memoryType.exists = true;
+        }
+    }
+
+    // throw an error if a memory type wasn't found
+    if(!memoryType.exists) {
+        std::cout << "Failed to find suitable memory type" << std::endl;
+        exit(-1);
+    }
+
+    // buffer memory allocation info
+    VkMemoryAllocateInfo memAllocInfo{};
+    memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memAllocInfo.allocationSize = memRequirements.size;
+    memAllocInfo.memoryTypeIndex = memoryType.value;
+
+    // try to allocate memory
+    if(vkAllocateMemory(device, &memAllocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        std::cout << "Failed to allocate buffer memory" << std::endl;
+        exit(-1);
+    }
+
+    // bind the memory we just allocated to the buffer
+    vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
