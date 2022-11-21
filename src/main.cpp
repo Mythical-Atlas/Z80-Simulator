@@ -25,8 +25,11 @@ int main() {
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
+            // bind the ibo
+            vkCmdBindIndexBuffer(commandBuffers[currentFrame], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
             // draw the vertices in the vbo
-            vkCmdDraw(commandBuffers[currentFrame], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+            vkCmdDrawIndexed(commandBuffers[currentFrame], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
             endRenderingWindow(imageIndex);
         }

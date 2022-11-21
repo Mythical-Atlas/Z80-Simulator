@@ -41,13 +41,15 @@ VkRenderPass renderPass;
 VkPipelineLayout pipelineLayout;
 VkPipeline graphicsPipeline;
 std::vector<VkFramebuffer> swapChainFramebuffers;
-VkBuffer vertexBuffer;
-VkDeviceMemory vertexBufferMemory;
 VkCommandPool commandPool;
 std::vector<VkCommandBuffer> commandBuffers;
 std::vector<VkSemaphore> imageAvailableSemaphores;
 std::vector<VkSemaphore> renderFinishedSemaphores;
 std::vector<VkFence> inFlightFences;
+VkBuffer vertexBuffer;
+VkDeviceMemory vertexBufferMemory;
+VkBuffer indexBuffer;
+VkDeviceMemory indexBufferMemory;
 
 uint32_t currentFrame = 0;
 bool framebufferResized = false;
@@ -507,33 +509,6 @@ void initWindow() {
         exit(-1);
     }
 
-    /*--------------------VERTEX BUFFER--------------------*/
-
-    // staging buffer and memory
-    // the staging buffer is what the cpu accesses, while the actual vertex buffer is only visible to the gpu
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-
-    // create staging buffer
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-    createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-    // write the vertex data to the vbo
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), (size_t)bufferSize);
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    // create vertex buffer
-    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-
-    // make the gpu copy the data from the staging buffer to the vertex buffer
-    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
-
-    // free the staging buffer's resources
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
     /*--------------------SYNCHRONIZATION--------------------*/
 
     // semaphore settings
@@ -561,6 +536,59 @@ void initWindow() {
             exit(-1);
         }
     }
+
+    /*--------------------VERTEX BUFFER--------------------*/
+
+    // staging buffer and memory
+    // the staging buffer is what the cpu accesses, while the actual vertex buffer is only visible to the gpu
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    // create staging buffer
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    // write the vertex data to the vbo
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t)bufferSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    // create vertex buffer
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+    // make the gpu copy the data from the staging buffer to the vertex buffer
+    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+    // free the staging buffer's resources
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+    /*--------------------INDEX BUFFER--------------------*/
+
+    // staging buffer and memory
+    VkBuffer indStagingBuffer;
+    VkDeviceMemory indStagingBufferMemory;
+
+    // create staging buffer
+    VkDeviceSize indBufferSize = sizeof(indices[0]) * indices.size();
+    createBuffer(indBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, indStagingBuffer, indStagingBufferMemory);
+
+    // write the index data to the ibo
+    void* indData;
+    vkMapMemory(device, indStagingBufferMemory, 0, indBufferSize, 0, &indData);
+    memcpy(indData, indices.data(), (size_t) indBufferSize);
+    vkUnmapMemory(device, indStagingBufferMemory);
+
+    // create index buffer
+    createBuffer(indBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+
+    // make the gpu copy the data from the staging buffer to the index buffer
+    copyBuffer(indStagingBuffer, indexBuffer, indBufferSize);
+
+    // free the staging buffer's resources
+    vkDestroyBuffer(device, indStagingBuffer, nullptr);
+    vkFreeMemory(device, indStagingBufferMemory, nullptr);
 }
 
 int beginRenderingWindow() {
@@ -651,6 +679,10 @@ void endRenderingWindow(uint32_t imageIndex) {
 
 void freeWindow() {
     // free vulkan resources
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
     for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
         vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -660,8 +692,6 @@ void freeWindow() {
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     freeSwapChain();
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
