@@ -5,9 +5,11 @@
 #define GLFW_INCLUDE_VULKAN
 #define GLFW_EXPOSE_NATIVE_WIN32
 #define GLM_FORCE_RADIANS
-
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 #include <iostream>
 #include <glm/vec4.hpp>
@@ -21,48 +23,14 @@
 #include "global.hpp"
 #include "vertex.hpp"
 #include "shader.hpp"
+#include "windowVariables.hpp"
+#include "commandBuffer.hpp"
+#include "buffer.hpp"
 
 #define WINDOW_START_WIDTH 1280
 #define WINDOW_START_HEIGHT 720
 #define WINDOW_TITLE "Z80 Simulator"
 #define MAX_FRAMES_IN_FLIGHT 2
-
-GLFWwindow* window;
-VkInstance instance;
-VkSurfaceKHR surface;
-VkPhysicalDevice physicalDevice;
-VkDevice device;
-Optional graphicsQFIndex;
-Optional presentQFIndex;
-VkQueue graphicsQueue;
-VkQueue presentQueue;
-VkSurfaceFormatKHR swapChainImageFormat;
-VkExtent2D swapChainExtent;
-VkSwapchainKHR swapChain;
-std::vector<VkImage> swapChainImages;
-std::vector<VkImageView> swapChainImageViews;
-VkRenderPass renderPass;
-VkPipelineLayout pipelineLayout;
-VkPipeline graphicsPipeline;
-std::vector<VkFramebuffer> swapChainFramebuffers;
-VkCommandPool commandPool;
-std::vector<VkCommandBuffer> commandBuffers;
-std::vector<VkSemaphore> imageAvailableSemaphores;
-std::vector<VkSemaphore> renderFinishedSemaphores;
-std::vector<VkFence> inFlightFences;
-VkBuffer vertexBuffer;
-VkDeviceMemory vertexBufferMemory;
-VkBuffer indexBuffer;
-VkDeviceMemory indexBufferMemory;
-VkDescriptorSetLayout descriptorSetLayout;
-std::vector<VkBuffer> uniformBuffers;
-std::vector<VkDeviceMemory> uniformBuffersMemory;
-std::vector<void*> uniformBuffersMapped;
-VkDescriptorPool descriptorPool;
-std::vector<VkDescriptorSet> descriptorSets;
-
-uint32_t currentFrame = 0;
-bool framebufferResized = false;
 
 void initWindow();
 int beginRenderingWindow();
@@ -73,10 +41,6 @@ void createSwapChain();
 void recreateSwapChain();
 void freeSwapChain();
 
-void beginRecordingCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-void endRecordingCommandBuffer(VkCommandBuffer commandBuffer);
-void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 void updateUniformBuffer(uint32_t currentImage);
 
@@ -775,6 +739,8 @@ void endRenderingWindow(uint32_t imageIndex) {
 
 void freeWindow() {
     // free vulkan resources
+    vkDestroyImage(device, textureImage, nullptr);
+    vkFreeMemory(device, textureImageMemory, nullptr);
     vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1014,162 +980,6 @@ void freeSwapChain() {
     for(int i = 0; i < swapChainFramebuffers.size(); i++) {vkDestroyFramebuffer(device, swapChainFramebuffers[i], nullptr);}
     for(int i = 0; i < swapChainImageViews.size(); i++) {vkDestroyImageView(device, swapChainImageViews[i], nullptr);}
     vkDestroySwapchainKHR(device, swapChain, nullptr);
-}
-
-void beginRecordingCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
-    // used for passing flags to command buffer
-    // currently no flags set
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    // try to begin recording command buffer
-    if(vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-        std::cout << "Failed to begin recording command buffer" << std::endl;
-        exit(-1);
-    }
-
-    // passing framebuffer and other info for render pass
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderPass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
-    renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = swapChainExtent;
-    renderPassInfo.clearValueCount = 1;
-    VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-    renderPassInfo.pClearValues = &clearColor;
-
-    // begin the render pass
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-    // bind the graphics pipeline to the command buffer
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-    // define viewport for draw command
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapChainExtent.width);
-    viewport.height = static_cast<float>(swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-    // define scissor for draw command
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = swapChainExtent;
-    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-}
-void endRecordingCommandBuffer(VkCommandBuffer commandBuffer) {
-    // end the render pass
-    vkCmdEndRenderPass(commandBuffer);
-
-    // try to finish recording command buffer
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-        std::cout << "Failed to record command buffer" << std::endl;
-        exit(-1);
-    }
-}
-
-void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-    // buffer allocation settings
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
-    allocInfo.commandBufferCount = 1;
-
-    // allocate a temporary command buffer for gpu memory transfer operations
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-    // begin recording the command buffer
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-    // send the command to copy the source buffer to the destination buffer
-    VkBufferCopy copyRegion{};
-    copyRegion.size = size;
-    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-    // end recording command buffer
-    vkEndCommandBuffer(commandBuffer);
-
-    // submit the command buffer
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-
-    // make the cpu wait until the operation finishes executing before continuing
-    vkQueueWaitIdle(graphicsQueue);
-
-    // free the command buffer's resources
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-}
-
-void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
-    // buffer settings
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    // try to create buffer
-    if(vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-        std::cout << "Failed to create buffer" << std::endl;
-        exit(-1);
-    }
-
-    // getting the memory requirements for the buffer
-    // fields:
-    // - size
-    // - alignment
-    // - suitable memory types
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
-
-    // getting the memory properties of the gpu
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
-    // find a suitable memory type
-    Optional memoryType;
-    for(int i = 0; i < memProperties.memoryTypeCount; i++) {
-        // check if memory type is suitable (type bits) and check if we can map the memory so it's visible to the cpu (properties flags)
-        if((memRequirements.memoryTypeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-            memoryType.value = i;
-            memoryType.exists = true;
-        }
-    }
-
-    // throw an error if a memory type wasn't found
-    if(!memoryType.exists) {
-        std::cout << "Failed to find suitable memory type" << std::endl;
-        exit(-1);
-    }
-
-    // buffer memory allocation info
-    VkMemoryAllocateInfo memAllocInfo{};
-    memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    memAllocInfo.allocationSize = memRequirements.size;
-    memAllocInfo.memoryTypeIndex = memoryType.value;
-
-    // try to allocate memory
-    if(vkAllocateMemory(device, &memAllocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-        std::cout << "Failed to allocate buffer memory" << std::endl;
-        exit(-1);
-    }
-
-    // bind the memory we just allocated to the buffer
-    vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
 void framebufferResizeCallback(GLFWwindow* window, int width, int height) {framebufferResized = true;}
