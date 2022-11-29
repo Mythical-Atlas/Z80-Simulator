@@ -46,6 +46,8 @@ VkDescriptorPool descriptorPool;
 std::vector<VkDescriptorSet> descriptorSets;
 VkImage textureImage;
 VkDeviceMemory textureImageMemory;
+VkImageView textureImageView;
+VkSampler textureSampler;
 
 uint32_t currentFrame = 0;
 bool framebufferResized = false;

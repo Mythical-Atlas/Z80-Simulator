@@ -13,6 +13,7 @@
 struct Vertex {
     glm::vec2 pos;
     glm::vec3 color;
+    glm::vec2 texCoord;
 
     // get the binding description of the vertex
     static VkVertexInputBindingDescription getBindingDescription() {
@@ -25,8 +26,8 @@ struct Vertex {
     }
 
     // get the attribute descriptions of the vertex
-    static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
         // position attribute
         attributeDescriptions[0].binding = 0;
@@ -40,6 +41,12 @@ struct Vertex {
         attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, color);
 
+        // texture coordinate attribute
+        attributeDescriptions[2].binding = 0;
+        attributeDescriptions[2].location = 2;
+        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+
         return attributeDescriptions;
     }
 };
@@ -51,10 +58,10 @@ struct UniformBufferObject {
 };
 
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 };
 const std::vector<uint32_t> indices = {
     0, 1, 2, 2, 3, 0
