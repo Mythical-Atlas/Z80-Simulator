@@ -4,8 +4,6 @@
 #include <stdint.h>
 
 #include "graphics.hpp"
-#include "collision.hpp"
-#include "menuState.hpp"
 
 #define STATE_TYPE_EMPTY 0
 #define STATE_TYPE_MENU 1
@@ -21,7 +19,6 @@ public:
 class Tileset {
 	Texture tilesheet;
 	int tileSize[2];
-	CollisionShape* collisions;
 };
 
 class Tilemap {

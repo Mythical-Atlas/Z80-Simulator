@@ -1,6 +1,4 @@
 #include "game.hpp"
-#include "menuState.hpp"
-#include "levelState.hpp"
 #include "mapState.hpp"
 
 void Game::changeState(int state) {
@@ -15,9 +13,7 @@ void Game::changeState(int state) {
 void Game::init(Window* window) {
     this->window = window;
 
-    states[0] = new MenuState;
-    states[1] = new MapState;
-    states[2] = new LevelState;
+    states[0] = new MapState;
 
     state = nullptr;
 

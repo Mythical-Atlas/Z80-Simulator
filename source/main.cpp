@@ -5,6 +5,7 @@
 #include "main.hpp"
 #include "window.hpp"
 #include "audio.hpp"
+#include "game.hpp"
 
 // 3ds: osGetTime();
 // pc: ???

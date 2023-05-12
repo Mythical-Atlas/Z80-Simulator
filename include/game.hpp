@@ -3,7 +3,7 @@
 
 //#include "audio.hpp"
 
-#define STATE_COUNT 3
+#define STATE_COUNT 1
 
 class State {
 public:
