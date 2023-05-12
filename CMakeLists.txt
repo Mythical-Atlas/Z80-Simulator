@@ -28,4 +28,4 @@ target_include_directories(z80 PRIVATE include PUBLIC dependencies PUBLIC depend
 target_link_directories(z80 PUBLIC dependencies/SDL2-2.26.4/lib)
 target_link_libraries(z80 SDL2main SDL2 psapi)
 
-#target_compile_definitions(z80 PUBLIC USE_OPENGL_4_3)
+target_compile_definitions(z80 PUBLIC USE_OPENGL_4_3)
