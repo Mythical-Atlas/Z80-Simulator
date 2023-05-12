@@ -76,8 +76,6 @@ CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj: C:/GitHub/Z80-Simulator/dep
   C:/MinGW/include/oaidl.h \
   C:/MinGW/include/oleidl.h
 
-CMakeFiles/z80.dir/source/assetManager.cpp.obj: C:/GitHub/Z80-Simulator/source/assetManager.cpp
-
 CMakeFiles/z80.dir/source/camera.cpp.obj: C:/GitHub/Z80-Simulator/source/camera.cpp \
   C:/GitHub/Z80-Simulator/include/renderProgram.hpp \
   C:/GitHub/Z80-Simulator/dependencies/glad/include/glad/glad.h \
@@ -3019,10 +3017,6 @@ C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/ptr_traits.h:
 
 C:/MinGW/include/oleidl.h:
 
-C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/vec2.hpp:
-
-C:/GitHub/Z80-Simulator/source/assetManager.cpp:
-
 C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/cstring:
 
 C:/GitHub/Z80-Simulator/source/camera.cpp:
@@ -3124,6 +3118,8 @@ C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/detail/compute_vector_r
 C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/detail/type_mat4x4.inl:
 
 C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/matrix.hpp:
+
+C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/vec2.hpp:
 
 C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/ext/vector_bool2.hpp:
 

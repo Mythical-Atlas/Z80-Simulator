@@ -4,7 +4,6 @@ project(z80)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(z80
-	include/assetManager.hpp 	source/assetManager.cpp
 	include/audio.hpp
 	include/camera.hpp 			source/camera.cpp
 	include/controller.hpp		source/controller.cpp

@@ -4,8 +4,6 @@ file(REMOVE_RECURSE
   "C:/GitHub/Z80-Simulator/z80.pdb"
   "CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj"
   "CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj.d"
-  "CMakeFiles/z80.dir/source/assetManager.cpp.obj"
-  "CMakeFiles/z80.dir/source/assetManager.cpp.obj.d"
   "CMakeFiles/z80.dir/source/camera.cpp.obj"
   "CMakeFiles/z80.dir/source/camera.cpp.obj.d"
   "CMakeFiles/z80.dir/source/controller.cpp.obj"

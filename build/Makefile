@@ -152,30 +152,6 @@ dependencies/glad/src/glad.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/dependencies/glad/src/glad.c.s
 .PHONY : dependencies/glad/src/glad.c.s
 
-source/assetManager.obj: source/assetManager.cpp.obj
-.PHONY : source/assetManager.obj
-
-# target to build an object file
-source/assetManager.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/source/assetManager.cpp.obj
-.PHONY : source/assetManager.cpp.obj
-
-source/assetManager.i: source/assetManager.cpp.i
-.PHONY : source/assetManager.i
-
-# target to preprocess a source file
-source/assetManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/source/assetManager.cpp.i
-.PHONY : source/assetManager.cpp.i
-
-source/assetManager.s: source/assetManager.cpp.s
-.PHONY : source/assetManager.s
-
-# target to generate assembly for a file
-source/assetManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/source/assetManager.cpp.s
-.PHONY : source/assetManager.cpp.s
-
 source/camera.obj: source/camera.cpp.obj
 .PHONY : source/camera.obj
 
@@ -404,9 +380,6 @@ help:
 	@echo ... dependencies/glad/src/glad.obj
 	@echo ... dependencies/glad/src/glad.i
 	@echo ... dependencies/glad/src/glad.s
-	@echo ... source/assetManager.obj
-	@echo ... source/assetManager.i
-	@echo ... source/assetManager.s
 	@echo ... source/camera.obj
 	@echo ... source/camera.i
 	@echo ... source/camera.s

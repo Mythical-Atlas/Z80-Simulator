@@ -1,12 +1,6 @@
 [
 {
   "directory": "C:/GitHub/Z80-Simulator/build",
-  "command": "C:\\MinGW\\bin\\g++.exe -DUSE_OPENGL_4_3 @CMakeFiles/z80.dir/includes_CXX.rsp -g -std=gnu++1z -o CMakeFiles\\z80.dir\\source\\assetManager.cpp.obj -c C:\\GitHub\\Z80-Simulator\\source\\assetManager.cpp",
-  "file": "C:/GitHub/Z80-Simulator/source/assetManager.cpp",
-  "output": "CMakeFiles/z80.dir/source/assetManager.cpp.obj"
-},
-{
-  "directory": "C:/GitHub/Z80-Simulator/build",
   "command": "C:\\MinGW\\bin\\g++.exe -DUSE_OPENGL_4_3 @CMakeFiles/z80.dir/includes_CXX.rsp -g -std=gnu++1z -o CMakeFiles\\z80.dir\\source\\camera.cpp.obj -c C:\\GitHub\\Z80-Simulator\\source\\camera.cpp",
   "file": "C:/GitHub/Z80-Simulator/source/camera.cpp",
   "output": "CMakeFiles/z80.dir/source/camera.cpp.obj"

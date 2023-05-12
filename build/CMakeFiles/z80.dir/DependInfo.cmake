@@ -9,7 +9,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/GitHub/Z80-Simulator/dependencies/glad/src/glad.c" "CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj" "gcc" "CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj.d"
-  "C:/GitHub/Z80-Simulator/source/assetManager.cpp" "CMakeFiles/z80.dir/source/assetManager.cpp.obj" "gcc" "CMakeFiles/z80.dir/source/assetManager.cpp.obj.d"
   "C:/GitHub/Z80-Simulator/source/camera.cpp" "CMakeFiles/z80.dir/source/camera.cpp.obj" "gcc" "CMakeFiles/z80.dir/source/camera.cpp.obj.d"
   "C:/GitHub/Z80-Simulator/source/controller.cpp" "CMakeFiles/z80.dir/source/controller.cpp.obj" "gcc" "CMakeFiles/z80.dir/source/controller.cpp.obj.d"
   "C:/GitHub/Z80-Simulator/source/game.cpp" "CMakeFiles/z80.dir/source/game.cpp.obj" "gcc" "CMakeFiles/z80.dir/source/game.cpp.obj.d"

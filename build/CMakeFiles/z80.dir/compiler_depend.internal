@@ -77,9 +77,6 @@ CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj
  C:/MinGW/include/oaidl.h
  C:/MinGW/include/oleidl.h
 
-CMakeFiles/z80.dir/source/assetManager.cpp.obj
- C:/GitHub/Z80-Simulator/source/assetManager.cpp
-
 CMakeFiles/z80.dir/source/camera.cpp.obj
  C:/GitHub/Z80-Simulator/source/camera.cpp
  C:/GitHub/Z80-Simulator/include/renderProgram.hpp

@@ -68,26 +68,11 @@ include CMakeFiles/z80.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/z80.dir/flags.make
 
-CMakeFiles/z80.dir/source/assetManager.cpp.obj: CMakeFiles/z80.dir/flags.make
-CMakeFiles/z80.dir/source/assetManager.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
-CMakeFiles/z80.dir/source/assetManager.cpp.obj: C:/GitHub/Z80-Simulator/source/assetManager.cpp
-CMakeFiles/z80.dir/source/assetManager.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/z80.dir/source/assetManager.cpp.obj"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/assetManager.cpp.obj -MF CMakeFiles\z80.dir\source\assetManager.cpp.obj.d -o CMakeFiles\z80.dir\source\assetManager.cpp.obj -c C:\GitHub\Z80-Simulator\source\assetManager.cpp
-
-CMakeFiles/z80.dir/source/assetManager.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/z80.dir/source/assetManager.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\GitHub\Z80-Simulator\source\assetManager.cpp > CMakeFiles\z80.dir\source\assetManager.cpp.i
-
-CMakeFiles/z80.dir/source/assetManager.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/z80.dir/source/assetManager.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\GitHub\Z80-Simulator\source\assetManager.cpp -o CMakeFiles\z80.dir\source\assetManager.cpp.s
-
 CMakeFiles/z80.dir/source/camera.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/camera.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/camera.cpp.obj: C:/GitHub/Z80-Simulator/source/camera.cpp
 CMakeFiles/z80.dir/source/camera.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/z80.dir/source/camera.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/z80.dir/source/camera.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/camera.cpp.obj -MF CMakeFiles\z80.dir\source\camera.cpp.obj.d -o CMakeFiles\z80.dir\source\camera.cpp.obj -c C:\GitHub\Z80-Simulator\source\camera.cpp
 
 CMakeFiles/z80.dir/source/camera.cpp.i: cmake_force
@@ -102,7 +87,7 @@ CMakeFiles/z80.dir/source/controller.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/controller.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/controller.cpp.obj: C:/GitHub/Z80-Simulator/source/controller.cpp
 CMakeFiles/z80.dir/source/controller.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/z80.dir/source/controller.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/z80.dir/source/controller.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/controller.cpp.obj -MF CMakeFiles\z80.dir\source\controller.cpp.obj.d -o CMakeFiles\z80.dir\source\controller.cpp.obj -c C:\GitHub\Z80-Simulator\source\controller.cpp
 
 CMakeFiles/z80.dir/source/controller.cpp.i: cmake_force
@@ -117,7 +102,7 @@ CMakeFiles/z80.dir/source/game.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/game.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/game.cpp.obj: C:/GitHub/Z80-Simulator/source/game.cpp
 CMakeFiles/z80.dir/source/game.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/z80.dir/source/game.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/z80.dir/source/game.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/game.cpp.obj -MF CMakeFiles\z80.dir\source\game.cpp.obj.d -o CMakeFiles\z80.dir\source\game.cpp.obj -c C:\GitHub\Z80-Simulator\source\game.cpp
 
 CMakeFiles/z80.dir/source/game.cpp.i: cmake_force
@@ -132,7 +117,7 @@ CMakeFiles/z80.dir/source/graphics.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/graphics.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/graphics.cpp.obj: C:/GitHub/Z80-Simulator/source/graphics.cpp
 CMakeFiles/z80.dir/source/graphics.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/z80.dir/source/graphics.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/z80.dir/source/graphics.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/graphics.cpp.obj -MF CMakeFiles\z80.dir\source\graphics.cpp.obj.d -o CMakeFiles\z80.dir\source\graphics.cpp.obj -c C:\GitHub\Z80-Simulator\source\graphics.cpp
 
 CMakeFiles/z80.dir/source/graphics.cpp.i: cmake_force
@@ -147,7 +132,7 @@ CMakeFiles/z80.dir/source/main.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/main.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/main.cpp.obj: C:/GitHub/Z80-Simulator/source/main.cpp
 CMakeFiles/z80.dir/source/main.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/z80.dir/source/main.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/z80.dir/source/main.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/main.cpp.obj -MF CMakeFiles\z80.dir\source\main.cpp.obj.d -o CMakeFiles\z80.dir\source\main.cpp.obj -c C:\GitHub\Z80-Simulator\source\main.cpp
 
 CMakeFiles/z80.dir/source/main.cpp.i: cmake_force
@@ -162,7 +147,7 @@ CMakeFiles/z80.dir/source/mapState.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/mapState.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/mapState.cpp.obj: C:/GitHub/Z80-Simulator/source/mapState.cpp
 CMakeFiles/z80.dir/source/mapState.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/z80.dir/source/mapState.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/z80.dir/source/mapState.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/mapState.cpp.obj -MF CMakeFiles\z80.dir\source\mapState.cpp.obj.d -o CMakeFiles\z80.dir\source\mapState.cpp.obj -c C:\GitHub\Z80-Simulator\source\mapState.cpp
 
 CMakeFiles/z80.dir/source/mapState.cpp.i: cmake_force
@@ -177,7 +162,7 @@ CMakeFiles/z80.dir/source/renderBuffer.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/renderBuffer.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/renderBuffer.cpp.obj: C:/GitHub/Z80-Simulator/source/renderBuffer.cpp
 CMakeFiles/z80.dir/source/renderBuffer.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/z80.dir/source/renderBuffer.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/z80.dir/source/renderBuffer.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/renderBuffer.cpp.obj -MF CMakeFiles\z80.dir\source\renderBuffer.cpp.obj.d -o CMakeFiles\z80.dir\source\renderBuffer.cpp.obj -c C:\GitHub\Z80-Simulator\source\renderBuffer.cpp
 
 CMakeFiles/z80.dir/source/renderBuffer.cpp.i: cmake_force
@@ -192,7 +177,7 @@ CMakeFiles/z80.dir/source/renderProgram.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/renderProgram.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/renderProgram.cpp.obj: C:/GitHub/Z80-Simulator/source/renderProgram.cpp
 CMakeFiles/z80.dir/source/renderProgram.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/z80.dir/source/renderProgram.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/z80.dir/source/renderProgram.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/renderProgram.cpp.obj -MF CMakeFiles\z80.dir\source\renderProgram.cpp.obj.d -o CMakeFiles\z80.dir\source\renderProgram.cpp.obj -c C:\GitHub\Z80-Simulator\source\renderProgram.cpp
 
 CMakeFiles/z80.dir/source/renderProgram.cpp.i: cmake_force
@@ -207,7 +192,7 @@ CMakeFiles/z80.dir/source/window.cpp.obj: CMakeFiles/z80.dir/flags.make
 CMakeFiles/z80.dir/source/window.cpp.obj: CMakeFiles/z80.dir/includes_CXX.rsp
 CMakeFiles/z80.dir/source/window.cpp.obj: C:/GitHub/Z80-Simulator/source/window.cpp
 CMakeFiles/z80.dir/source/window.cpp.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/z80.dir/source/window.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/z80.dir/source/window.cpp.obj"
 	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/z80.dir/source/window.cpp.obj -MF CMakeFiles\z80.dir\source\window.cpp.obj.d -o CMakeFiles\z80.dir\source\window.cpp.obj -c C:\GitHub\Z80-Simulator\source\window.cpp
 
 CMakeFiles/z80.dir/source/window.cpp.i: cmake_force
@@ -222,7 +207,7 @@ CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj: CMakeFiles/z80.dir/flags.ma
 CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj: CMakeFiles/z80.dir/includes_C.rsp
 CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj: C:/GitHub/Z80-Simulator/dependencies/glad/src/glad.c
 CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj: CMakeFiles/z80.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj"
 	C:\MinGW\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj -MF CMakeFiles\z80.dir\dependencies\glad\src\glad.c.obj.d -o CMakeFiles\z80.dir\dependencies\glad\src\glad.c.obj -c C:\GitHub\Z80-Simulator\dependencies\glad\src\glad.c
 
 CMakeFiles/z80.dir/dependencies/glad/src/glad.c.i: cmake_force
@@ -235,7 +220,6 @@ CMakeFiles/z80.dir/dependencies/glad/src/glad.c.s: cmake_force
 
 # Object files for target z80
 z80_OBJECTS = \
-"CMakeFiles/z80.dir/source/assetManager.cpp.obj" \
 "CMakeFiles/z80.dir/source/camera.cpp.obj" \
 "CMakeFiles/z80.dir/source/controller.cpp.obj" \
 "CMakeFiles/z80.dir/source/game.cpp.obj" \
@@ -250,7 +234,6 @@ z80_OBJECTS = \
 # External object files for target z80
 z80_EXTERNAL_OBJECTS =
 
-C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/source/assetManager.cpp.obj
 C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/source/camera.cpp.obj
 C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/source/controller.cpp.obj
 C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/source/game.cpp.obj
@@ -265,7 +248,7 @@ C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/build.make
 C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/linkLibs.rsp
 C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/objects1.rsp
 C:/GitHub/Z80-Simulator/z80.exe: CMakeFiles/z80.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable C:\GitHub\Z80-Simulator\z80.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\GitHub\Z80-Simulator\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable C:\GitHub\Z80-Simulator\z80.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\z80.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
