@@ -61,6 +61,93 @@ void MapState::update(Window* window, Game* game)  {
 
     ticksSinceLastDebugPrint++;
 }
+
+void renderString(Sprite font, vec2 pos, string text, RenderProgram* rp, RenderBuffer* rb) {
+    int line = 0;
+    int offset = 0;
+    const char* chars = text.c_str();
+
+    for(int c = 0; c < text.length(); c++) {
+        font.pos = pos + vec2((c - offset) * 8, line * 12);
+        
+        if(chars[c] == '\n') {
+            line++;
+            offset = c + 1;
+        }
+        else if(chars[c] == 0) {}
+        else {font.render(rp, rb, (chars[c] - 32) % 64, (int)((chars[c] - 32) / 64));}
+    }
+}
+void renderRaw(Sprite font, vec2 pos, int* text, int numInts, RenderProgram* rp, RenderBuffer* rb) {
+    int line = 0;
+    int offset = 0;
+
+    for(int c = 0; c < numInts; c++) {
+        font.pos = pos + vec2((c - offset) * 8, line * 12);
+        
+        if(text[c] == '\n') {
+            line++;
+            offset = c + 1;
+        }
+        else if(text[c] == 0) {}
+        else {font.render(rp, rb, (text[c] - 32) % 64, (int)((text[c] - 32) / 64));}
+    }
+}
+int buildBorder(int w, int h, int s, int* buffer, int len) {
+    for(int x = 0; x < w + 1; x++) {
+        for(int y = 0; y < h; y++) {
+            if(x + y * (w + 1) >= len) {return len;}
+            if(x == w) {
+                buffer[x + y * (w + 1)] = '\n';
+                continue;
+            }
+
+            int xa = 0;
+            if(x == 0) {xa = -1;}
+            if(x == w - 1) {xa = 1;}
+            int ya = 0;
+            if(y == 0) {ya = -1;}
+            if(y == h - 1) {ya = 1;}
+
+            int i = 0;
+
+            if(xa == -1 && ya == -1) { // top left
+                if(s == 1) {i = 704;}
+                if(s == 2) {i = 717;}
+                buffer[x + y * (w + 1)] = i;
+            }
+            if(xa == 1 && ya == -1) { // top right
+                if(s == 1) {i = 705;}
+                if(s == 2) {i = 720;}
+                buffer[x + y * (w + 1)] = i;
+            }
+            if(xa == -1 && ya == 1) { // bottom left
+                if(s == 1) {i = 706;}
+                if(s == 2) {i = 723;}
+                buffer[x + y * (w + 1)] = i;
+            }
+            if(xa == 1 && ya == 1) { // bottom right
+                if(s == 1) {i = 707;}
+                if(s == 2) {i = 726;}
+                buffer[x + y * (w + 1)] = i;
+            }
+            
+            if((xa == -1 || xa == 1) && ya == 0) {
+                if(s == 1) {i = 703;}
+                if(s == 2) {i = 714;}
+                buffer[x + y * (w + 1)] = i;
+            }
+            if((ya == -1 || ya == 1) && xa == 0) {
+                if(s == 1) {i = 702;}
+                if(s == 2) {i = 713;}
+                buffer[x + y * (w + 1)] = i;
+            }
+        }
+    }
+
+    return w + h * (w + 1);
+}
+
 void MapState::render(Window* window, Game* game)  { // TODO: layering using z position
     if(timeSinceInit - debugPrintTimer >= 1000) {
         PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -80,8 +167,44 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
     rp.useViewMatrix(&cam);
 
-    fontSprite.pos = vec2(20, 20);
-    fontSprite.render(&rp, &rb, 1, 0);
+    int border[512];
+    int borderLen = 0;
+
+    renderString(fontSprite, vec2(8, 12), 
+        "A11       A10\n"
+        "A12        A9\n"
+        "A13        A8\n"
+        "A14        A7\n"
+        "A15        A6\n"
+        "CLK        A5\n"
+        "D4         A4\n"
+        "D3         A3\n"
+        "D5         A2\n"
+        "D6         A1\n"
+        "+5V        A0\n"
+        "D2        GND\n"
+        "D7      /RFSH\n"
+        "D0        /M1\n"
+        "D1     /RESET\n"
+        "/INT   /BUSRQ\n"
+        "/NMI    /WAIT\n"
+        "/HALT /BUSACK\n"
+        "/MREQ     /WR\n"
+        "/IORQ     /RD\n"
+    , &rp, &rb);
+
+    memset(border, 0, 512 * sizeof(int));
+    borderLen = buildBorder(15, 22, 1, border, 512);
+    renderRaw(fontSprite, vec2(0, 0), border, 15, &rp, &rb);
+    renderRaw(fontSprite, vec2(0, 12 * 21), &(border[16 * 21]), 15, &rp, &rb);
+
+    memset(border, 0, 512 * sizeof(int));
+    for(int i = 0; i < 20; i++) {
+        border[i * 16 + 0] = 709;
+        border[i * 16 + 14] = 708;
+        border[i * 16 + 15] = '\n';
+    }
+    renderRaw(fontSprite, vec2(0, 12), border, 20 * 16, &rp, &rb);
 }
 void MapState::unload() {
 	mixer.unload();
