@@ -14,6 +14,8 @@
 
 #define WIDTH 160
 #define HEIGHT 60
+#define H_SIZE ((WIDTH - 1) * HEIGHT)
+#define V_SIZE ((HEIGHT - 1) * WIDTH)
 
 using namespace chrono;
 
@@ -40,8 +42,8 @@ public:
 	Sprite fontSprite;
 	Sprite wireSprite;
 
-	uint8_t hWireTable[(WIDTH - 1) * HEIGHT];
-	uint8_t vWireTable[(HEIGHT - 1) * WIDTH];
+	uint8_t hWireTable[H_SIZE];
+	uint8_t vWireTable[V_SIZE];
 
 	/*AudioStream music;
 	AudioStream move;
