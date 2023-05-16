@@ -62,7 +62,7 @@ void Window::init(bool fullscreen, int screenWidth, int screenHeight, string win
     int h;
     SDL_GetWindowSize(window, &w, &h);
     glViewport(0, 0, w, h);
-    glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
+    glClearColor(0, 0, 0, 1.0f);
 }
 
 vec2 Window::getScreenSize() {
