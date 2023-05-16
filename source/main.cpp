@@ -14,7 +14,7 @@ using namespace std;
 
 int main(int argc, char* args[]) {
 	Window window;
-	window.init(false, 400, 480, "Super Mario Advance 4: 3DS Edition");
+	window.init(false, 400, 480, "Zilog Z80 Simulator");
 
 	Game game;
 	game.init(&window);

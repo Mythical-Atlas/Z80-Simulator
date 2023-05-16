@@ -61,6 +61,29 @@ void MapState::update(Window* window, Game* game)  {
 
     ticksSinceLastDebugPrint++;
 }
+
+void renderString(Sprite font, vec2 pos, RenderProgram* rp, RenderBuffer* rb, string text) {
+    const char* chars = text.c_str();
+    int len = text.length();
+    int line = 0;
+
+    for(int i = 0; i < len; i++) {
+        if(chars[i] == '\n') {line++;}
+        else if(chars[i] >= 'A' && chars[i] <= 'Z') {
+            font.pos = pos + vec2(i * 8, line * 12);
+            font.render(rp, rb, chars[i] - 'A' + 33, 0);
+        }
+        else if(chars[i] >= 'a' && chars[i] <= 'z') {
+            font.pos = pos + vec2(i * 8, line * 12);
+            font.render(rp, rb, chars[i] - 'a' + 1, 1);
+        }
+        else if(chars[i] >= '0' && chars[i] <= '9') {
+            font.pos = pos + vec2(i * 8, line * 12);
+            font.render(rp, rb, chars[i] - '0' + 16, 0);
+        }
+    }
+}
+
 void MapState::render(Window* window, Game* game)  { // TODO: layering using z position
     if(timeSinceInit - debugPrintTimer >= 1000) {
         PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -80,8 +103,7 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
     rp.useViewMatrix(&cam);
 
-    fontSprite.pos = vec2(20, 20);
-    fontSprite.render(&rp, &rb, 1, 0);
+    renderString(fontSprite, vec2(20, 20), &rp, &rb, "HELLO WORLD");
 }
 void MapState::unload() {
 	mixer.unload();
