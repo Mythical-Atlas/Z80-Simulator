@@ -52,6 +52,8 @@ void MapState::init(Window* window, Game* game)  {
     frameStartTime = stateStartTime;
 
     debugPrintTimer = 0;
+
+    memset(wireTable, 0, 160 * 60);
 }
 void MapState::update(Window* window, Game* game)  {
     time_point<steady_clock> currentTime = steady_clock::now();
@@ -62,25 +64,20 @@ void MapState::update(Window* window, Game* game)  {
     ticksSinceLastDebugPrint++;
 }
 
-void renderString(Sprite font, vec2 pos, RenderProgram* rp, RenderBuffer* rb, string text) {
-    const char* chars = text.c_str();
-    int len = text.length();
+void renderString(Sprite font, vec2 pos, string text, RenderProgram* rp, RenderBuffer* rb) {
     int line = 0;
+    int offset = 0;
+    const char* chars = text.c_str();
 
-    for(int i = 0; i < len; i++) {
-        if(chars[i] == '\n') {line++;}
-        else if(chars[i] >= 'A' && chars[i] <= 'Z') {
-            font.pos = pos + vec2(i * 8, line * 12);
-            font.render(rp, rb, chars[i] - 'A' + 33, 0);
+    for(int c = 0; c < text.length(); c++) {
+        font.pos = pos + vec2((c - offset) * 8, line * 12);
+
+        if(chars[c] == '\n') {
+            line++;
+            offset = c + 1;
         }
-        else if(chars[i] >= 'a' && chars[i] <= 'z') {
-            font.pos = pos + vec2(i * 8, line * 12);
-            font.render(rp, rb, chars[i] - 'a' + 1, 1);
-        }
-        else if(chars[i] >= '0' && chars[i] <= '9') {
-            font.pos = pos + vec2(i * 8, line * 12);
-            font.render(rp, rb, chars[i] - '0' + 16, 0);
-        }
+        else if(chars[c] == 0) {}
+        else {font.render(rp, rb, (chars[c] - 32) % 64, (int)((chars[c] - 32) / 64));}
     }
 }
 
@@ -197,6 +194,33 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
         "/HALT /BUSACK\n"
         "/MREQ     /WR\n"
         "/IORQ     /RD\n"
+    , &rp, &rb);
+
+    renderString(fontSprite, vec2(8 * 20, 12), 
+        "      +5V\n"
+        "A12   /WE\n"
+        "A7       \n"
+        "A6     A8\n"
+        "A5     A9\n"
+        "A4    A11\n"
+        "A3    /OE\n"
+        "A2    A10\n"
+        "A1    /CE\n"
+        "A0   I/O7\n"
+        "I/O0 I/O6\n"
+        "I/O1 I/O5\n"
+        "I/O2 I/O4\n"
+        "GND  I/O3\n"
+    , &rp, &rb);
+
+    renderString(fontSprite, vec2(8 * 40, 12), 
+        "1A  VCC\n"
+        "1Y   6A\n"
+        "2A   6Y\n"
+        "2Y   5A\n"
+        "3A   5Y\n"
+        "3Y   4A\n"
+        "GND  4Y\n"
     , &rp, &rb);
 
     memset(border, 0, 512 * sizeof(int));

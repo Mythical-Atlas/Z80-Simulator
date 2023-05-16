@@ -12,6 +12,9 @@
 #include "audio.hpp"
 #include "controller.hpp"
 
+#define WIDTH 160
+#define HEIGHT 60
+
 using namespace chrono;
 
 class MapState: public State {
@@ -32,8 +35,13 @@ public:
 	AudioMixer mixer;
 
 	Texture fontTexture;
+	Texture wireTexture;
 
 	Sprite fontSprite;
+	Sprite wireSprite;
+
+	uint8_t hWireTable[(WIDTH - 1) * HEIGHT];
+	uint8_t vWireTable[(HEIGHT - 1) * WIDTH];
 
 	/*AudioStream music;
 	AudioStream move;

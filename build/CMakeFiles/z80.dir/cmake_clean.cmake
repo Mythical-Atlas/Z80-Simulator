@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "C:/Users/Ben/Documents/GitHub/Z80-Simulator/z80.exe"
-  "C:/Users/Ben/Documents/GitHub/Z80-Simulator/z80.exe.manifest"
-  "C:/Users/Ben/Documents/GitHub/Z80-Simulator/z80.pdb"
+  "C:/GitHub/Z80-Simulator/z80.exe"
+  "C:/GitHub/Z80-Simulator/z80.exe.manifest"
+  "C:/GitHub/Z80-Simulator/z80.pdb"
   "CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj"
   "CMakeFiles/z80.dir/dependencies/glad/src/glad.c.obj.d"
   "CMakeFiles/z80.dir/source/camera.cpp.obj"
