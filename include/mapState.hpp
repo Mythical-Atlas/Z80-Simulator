@@ -40,7 +40,6 @@ public:
 	Sprite fontSprite;
 	Sprite wireSprite;
 
-	uint8_t netValues[40];
 	WireTable wt;
 
 	bool canClock;

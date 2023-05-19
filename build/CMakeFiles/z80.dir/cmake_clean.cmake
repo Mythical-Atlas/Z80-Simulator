@@ -17,6 +17,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/z80.dir/source/renderBuffer.cpp.obj.d"
   "CMakeFiles/z80.dir/source/renderProgram.cpp.obj"
   "CMakeFiles/z80.dir/source/renderProgram.cpp.obj.d"
+  "CMakeFiles/z80.dir/source/system.cpp.obj"
+  "CMakeFiles/z80.dir/source/system.cpp.obj.d"
   "CMakeFiles/z80.dir/source/window.cpp.obj"
   "CMakeFiles/z80.dir/source/window.cpp.obj.d"
   "CMakeFiles/z80.dir/source/wires.cpp.obj"

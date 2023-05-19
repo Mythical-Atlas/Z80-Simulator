@@ -2047,7 +2047,8 @@ CMakeFiles/z80.dir/source/mapState.cpp.obj: C:/GitHub/Z80-Simulator/source/mapSt
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/allocated_ptr.h \
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/ext/aligned_buffer.h \
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/list.tcc \
-  C:/GitHub/Z80-Simulator/include/audio.hpp
+  C:/GitHub/Z80-Simulator/include/audio.hpp \
+  C:/GitHub/Z80-Simulator/include/system.hpp
 
 CMakeFiles/z80.dir/source/renderBuffer.cpp.obj: C:/GitHub/Z80-Simulator/source/renderBuffer.cpp \
   C:/GitHub/Z80-Simulator/include/renderBuffer.hpp \
@@ -2389,6 +2390,8 @@ CMakeFiles/z80.dir/source/renderProgram.cpp.obj: C:/GitHub/Z80-Simulator/source/
   C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/detail/func_integer.inl \
   C:/GitHub/Z80-Simulator/include/camera.hpp \
   C:/GitHub/Z80-Simulator/include/renderProgram.hpp
+
+CMakeFiles/z80.dir/source/system.cpp.obj: C:/GitHub/Z80-Simulator/source/system.cpp
 
 CMakeFiles/z80.dir/source/window.cpp.obj: C:/GitHub/Z80-Simulator/source/window.cpp \
   C:/GitHub/Z80-Simulator/include/window.hpp \
@@ -3188,6 +3191,8 @@ C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/matrix.hpp:
 
 C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/vec2.hpp:
 
+C:/GitHub/Z80-Simulator/source/system.cpp:
+
 C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/ext/vector_bool2.hpp:
 
 C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/ext/vector_uint1.hpp:
@@ -3799,6 +3804,8 @@ C:/GitHub/Z80-Simulator/dependencies/stb_image.h:
 C:/GitHub/Z80-Simulator/source/mapState.cpp:
 
 C:/MinGW/include/psapi.h:
+
+C:/GitHub/Z80-Simulator/include/system.hpp:
 
 C:/GitHub/Z80-Simulator/source/renderProgram.cpp:
 

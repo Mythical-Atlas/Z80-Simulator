@@ -344,6 +344,30 @@ source/renderProgram.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/source/renderProgram.cpp.s
 .PHONY : source/renderProgram.cpp.s
 
+source/system.obj: source/system.cpp.obj
+.PHONY : source/system.obj
+
+# target to build an object file
+source/system.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/source/system.cpp.obj
+.PHONY : source/system.cpp.obj
+
+source/system.i: source/system.cpp.i
+.PHONY : source/system.i
+
+# target to preprocess a source file
+source/system.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/source/system.cpp.i
+.PHONY : source/system.cpp.i
+
+source/system.s: source/system.cpp.s
+.PHONY : source/system.s
+
+# target to generate assembly for a file
+source/system.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\z80.dir\build.make CMakeFiles/z80.dir/source/system.cpp.s
+.PHONY : source/system.cpp.s
+
 source/window.obj: source/window.cpp.obj
 .PHONY : source/window.obj
 
@@ -428,6 +452,9 @@ help:
 	@echo ... source/renderProgram.obj
 	@echo ... source/renderProgram.i
 	@echo ... source/renderProgram.s
+	@echo ... source/system.obj
+	@echo ... source/system.i
+	@echo ... source/system.s
 	@echo ... source/window.obj
 	@echo ... source/window.i
 	@echo ... source/window.s

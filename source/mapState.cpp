@@ -6,6 +6,7 @@
 
 #include "mapState.hpp"
 #include "audio.hpp"
+#include "system.hpp"
 
 #define VERTS_SIZE 16
 
@@ -45,8 +46,6 @@ void MapState::init(Window* window, Game* game)  {
     frameStartTime = stateStartTime;
 
     debugPrintTimer = 0;
-
-    memset(netValues, 0, 4 * sizeof(uint8_t));
 
     wt.init();
 
@@ -102,32 +101,6 @@ void MapState::init(Window* window, Game* game)  {
     SHPS(27, 31, 23, 23); SVPS(27, 23, 36, 23); SHPS(27, 58, 37, 23); SVPS(59, 31, 36, 23); SHPS(59, 137, 31, 23); SVPS(100, 31, 52, 23); SHPS(90, 99, 53, 23); SVPS(138, 31, 52, 23); SHPS(128, 137, 53, 23);
     // d7
     SHPS(28, 31, 26, 24); SVPS(28, 26, 35, 24); SHPS(28, 57, 36, 24); SVPS(58, 30, 35, 24); SHPS(58, 136, 30, 24); SVPS(99, 30, 51, 24); SHPS(90, 98, 52, 24); SVPS(137, 30, 51, 24); SHPS(128, 136, 52, 24);
- 
-    netValues[0] = 2;
-    netValues[1] = 3;
-    netValues[2] = 2;
-    netValues[3] = 3;
-    netValues[4] = 2;
-    netValues[5] = 3;
-    netValues[6] = 3;
-    netValues[7] = 2;
-    netValues[8] = 3;
-    netValues[9] = 2;
-    netValues[10] = 3;
-    netValues[11] = 3;
-    netValues[12] = 2;
-    netValues[13] = 3;
-    netValues[14] = 2;
-    netValues[15] = 3;
-    netValues[16] = 3;
-    netValues[17] = 2;
-    netValues[18] = 3;
-    netValues[19] = 2;
-    netValues[20] = 3;
-    netValues[21] = 2;
-    netValues[22] = 3;
-    netValues[23] = 2;
-    netValues[24] = 3;
 
     canClock = false;
     canSelectUp = false;
@@ -136,6 +109,8 @@ void MapState::init(Window* window, Game* game)  {
 
     selectedWire = 1;
     selectedValue = netValues[selectedWire];
+
+    initSystem();
 }
 void MapState::update(Window* window, Game* game)  {
     time_point<steady_clock> currentTime = steady_clock::now();
@@ -154,7 +129,7 @@ void MapState::update(Window* window, Game* game)  {
     }
     else {canClock = true;}
 
-    if(controller.up) {
+    /*if(controller.up) {
         if(canSelectUp) {
             netValues[selectedWire] = selectedValue;
 
@@ -192,7 +167,9 @@ void MapState::update(Window* window, Game* game)  {
         }
         canModify = false;
     }
-    else {canModify = true;}
+    else {canModify = true;}*/
+
+    updateSystem();
 }
 
 void renderString(Sprite font, vec2 pos, string text, RenderProgram* rp, RenderBuffer* rb) {
@@ -350,12 +327,14 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
         while(timeSinceInit - debugPrintTimer >= 1000) {debugPrintTimer += 1000;}
     }
 
-    if((timeSinceInit - selectStartTime) % 300 >= 150) {netValues[selectedWire] = selectedValue;}
-    else {netValues[selectedWire] = 1;}
+    /*if((timeSinceInit - selectStartTime) % 300 >= 150) {netValues[selectedWire] = selectedValue;}
+    else {netValues[selectedWire] = 1;}*/
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     rp.useViewMatrix(&cam);
+
+    renderString(fontSprite, vec2(0, 0) * vec2(8, 12), "Clock Cycles: " + to_string((int)((htcCount - 1) / 2)), &rp, &rb);
     
     for(int y = 0; y < 60; y++) {
         for(int x = 0; x < 160; x++) {

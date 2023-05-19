@@ -7,11 +7,11 @@ C_DEFINES = -DUSE_OPENGL_4_3
 
 C_INCLUDES = @CMakeFiles/z80.dir/includes_C.rsp
 
-C_FLAGS = 
+C_FLAGS = -g
 
 CXX_DEFINES = -DUSE_OPENGL_4_3
 
 CXX_INCLUDES = @CMakeFiles/z80.dir/includes_CXX.rsp
 
-CXX_FLAGS = -std=gnu++1z
+CXX_FLAGS = -g -std=gnu++1z
 

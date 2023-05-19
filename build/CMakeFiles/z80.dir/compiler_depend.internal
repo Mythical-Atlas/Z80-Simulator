@@ -2055,6 +2055,7 @@ CMakeFiles/z80.dir/source/mapState.cpp.obj
  C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/ext/aligned_buffer.h
  C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/list.tcc
  C:/GitHub/Z80-Simulator/include/audio.hpp
+ C:/GitHub/Z80-Simulator/include/system.hpp
 
 CMakeFiles/z80.dir/source/renderBuffer.cpp.obj
  C:/GitHub/Z80-Simulator/source/renderBuffer.cpp
@@ -2398,6 +2399,9 @@ CMakeFiles/z80.dir/source/renderProgram.cpp.obj
  C:/GitHub/Z80-Simulator/dependencies/glm-0.9.9.8/glm/glm/detail/func_integer.inl
  C:/GitHub/Z80-Simulator/include/camera.hpp
  C:/GitHub/Z80-Simulator/include/renderProgram.hpp
+
+CMakeFiles/z80.dir/source/system.cpp.obj
+ C:/GitHub/Z80-Simulator/source/system.cpp
 
 CMakeFiles/z80.dir/source/window.cpp.obj
  C:/GitHub/Z80-Simulator/source/window.cpp

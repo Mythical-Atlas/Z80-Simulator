@@ -13,12 +13,13 @@ add_executable(z80
 	include/mapState.hpp		source/mapState.cpp
 	include/renderBuffer.hpp 	source/renderBuffer.cpp
 	include/renderProgram.hpp 	source/renderProgram.cpp
+	include/system.hpp			source/system.cpp
 	include/window.hpp 			source/window.cpp
 	include/wires.hpp 			source/wires.cpp
 	dependencies/glad/src/glad.c
 )
 
-set_target_properties(z80 PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ../ RUNTIME_OUTPUT_DIRECTORY_RELEASE ../)
+#set_target_properties(z80 PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ../ RUNTIME_OUTPUT_DIRECTORY_RELEASE ../)
 
 target_include_directories(z80 PRIVATE include PUBLIC dependencies PUBLIC dependencies/glm-0.9.9.8/glm PUBLIC dependencies/glad/include PUBLIC dependencies/SDL2-2.26.4/include PUBLIC dependencies/rapidjson-1.1.0/include)
 target_link_directories(z80 PUBLIC dependencies/SDL2-2.26.4/lib)
