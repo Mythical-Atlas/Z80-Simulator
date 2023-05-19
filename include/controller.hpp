@@ -13,6 +13,7 @@ public:
 	bool l      : 1;
 	bool start  : 1;
 	bool select : 1;
+	bool space  : 1;
 
     void handleEvent(union SDL_Event* event);
 };

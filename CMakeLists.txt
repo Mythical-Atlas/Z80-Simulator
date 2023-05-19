@@ -14,6 +14,7 @@ add_executable(z80
 	include/renderBuffer.hpp 	source/renderBuffer.cpp
 	include/renderProgram.hpp 	source/renderProgram.cpp
 	include/window.hpp 			source/window.cpp
+	include/wires.hpp 			source/wires.cpp
 	dependencies/glad/src/glad.c
 )
 

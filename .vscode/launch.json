@@ -10,7 +10,7 @@
 			"cwd": "${workspaceFolder}",
 			"type": "cppdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}\\z80.exe",
+			"program": "${workspaceFolder}\\build\\z80.exe",
 			//"externalConsole": true,
             "MIMode": "gdb",
             "miDebuggerPath": "C:\\MinGW\\bin\\gdb.exe",

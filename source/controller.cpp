@@ -17,6 +17,7 @@ void Controller::handleEvent(union SDL_Event* event) {
                 case SDLK_a: l = true; break;
                 case SDLK_RETURN: start = true; break;
                 case SDLK_LSHIFT: select = true; break;
+                case SDLK_SPACE: space = true; break;
             }
             break;
         case SDL_KEYUP:
@@ -31,6 +32,7 @@ void Controller::handleEvent(union SDL_Event* event) {
                 case SDLK_a: l = false; break;
                 case SDLK_RETURN: start = false; break;
                 case SDLK_LSHIFT: select = false; break;
+                case SDLK_SPACE: space = false; break;
             }
             break;
     }

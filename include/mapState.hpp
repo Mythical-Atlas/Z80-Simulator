@@ -11,11 +11,7 @@
 #include "window.hpp"
 #include "audio.hpp"
 #include "controller.hpp"
-
-#define WIDTH 160
-#define HEIGHT 60
-#define H_SIZE ((WIDTH - 1) * HEIGHT)
-#define V_SIZE ((HEIGHT - 1) * WIDTH)
+#include "wires.hpp"
 
 using namespace chrono;
 
@@ -30,6 +26,8 @@ public:
 	uint32_t ticksSinceLastDebugPrint;
 	uint32_t debugPrintTimer;
 
+	uint32_t selectStartTime;
+
 	RenderProgram rp;
 	RenderBuffer rb;
 	Camera cam;
@@ -42,8 +40,16 @@ public:
 	Sprite fontSprite;
 	Sprite wireSprite;
 
-	uint8_t hWireTable[H_SIZE];
-	uint8_t vWireTable[V_SIZE];
+	uint8_t netValues[40];
+	WireTable wt;
+
+	bool canClock;
+	bool canSelectUp;
+	bool canSelectDown;
+	bool canModify;
+
+	int selectedWire;
+	int selectedValue;
 
 	/*AudioStream music;
 	AudioStream move;
