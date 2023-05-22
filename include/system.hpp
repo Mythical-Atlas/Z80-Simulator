@@ -69,3 +69,61 @@ void updateSystem() {
 }
 
 #endif
+
+/*
+
+instruction fetch (M1 cycle)
+
+clock rising edge begins T1 and M1
+- M1 goes low, PC appears on address bus
+
+clock falling edge
+- RD and MREQ go low
+
+clock rising edge (T2)
+- nothing changes
+
+clock falling edge
+- nothing changes
+
+clock rising edge (T3)
+- MREQ, RD, and M1 go high
+- RFSH goes low
+- refresh address (?) appears on address bus
+
+clock falling edge
+- MREQ goes low
+
+clock rising edge (T4)
+- nothing
+
+clock falling edge
+- MREQ goes high
+
+clock rising edge (T_ -> starting next M cycle)
+- RFSH goes high
+
+memory read
+
+clock rising edge (T1)
+-
+
+clock falling edge
+-
+
+clock rising edge (T2)
+-
+
+clock falling edge
+-
+
+clock rising edge (T3)
+-
+
+clock falling edge
+-
+
+clock rising edge (T_ -> starting next M cycle)
+-
+
+*/
