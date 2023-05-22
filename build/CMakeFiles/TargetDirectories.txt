@@ -1,3 +1,0 @@
-C:/GitHub/Z80-Simulator/build/CMakeFiles/z80.dir
-C:/GitHub/Z80-Simulator/build/CMakeFiles/edit_cache.dir
-C:/GitHub/Z80-Simulator/build/CMakeFiles/rebuild_cache.dir
