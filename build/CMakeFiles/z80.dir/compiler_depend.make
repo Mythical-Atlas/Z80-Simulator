@@ -829,7 +829,8 @@ CMakeFiles/z80.dir/source/game.cpp.obj: C:/GitHub/Z80-Simulator/source/game.cpp 
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/stl_list.h \
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/allocated_ptr.h \
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/ext/aligned_buffer.h \
-  C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/list.tcc
+  C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/list.tcc \
+  C:/GitHub/Z80-Simulator/include/system.hpp
 
 CMakeFiles/z80.dir/source/graphics.cpp.obj: C:/GitHub/Z80-Simulator/source/graphics.cpp \
   C:/GitHub/Z80-Simulator/dependencies/stb_image.h \
@@ -2047,8 +2048,8 @@ CMakeFiles/z80.dir/source/mapState.cpp.obj: C:/GitHub/Z80-Simulator/source/mapSt
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/allocated_ptr.h \
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/ext/aligned_buffer.h \
   C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/bits/list.tcc \
-  C:/GitHub/Z80-Simulator/include/audio.hpp \
-  C:/GitHub/Z80-Simulator/include/system.hpp
+  C:/GitHub/Z80-Simulator/include/system.hpp \
+  C:/GitHub/Z80-Simulator/include/audio.hpp
 
 CMakeFiles/z80.dir/source/renderBuffer.cpp.obj: C:/GitHub/Z80-Simulator/source/renderBuffer.cpp \
   C:/GitHub/Z80-Simulator/include/renderBuffer.hpp \
@@ -3797,6 +3798,8 @@ C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/list:
 
 C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/ext/aligned_buffer.h:
 
+C:/GitHub/Z80-Simulator/include/system.hpp:
+
 C:/GitHub/Z80-Simulator/source/graphics.cpp:
 
 C:/GitHub/Z80-Simulator/dependencies/stb_image.h:
@@ -3804,8 +3807,6 @@ C:/GitHub/Z80-Simulator/dependencies/stb_image.h:
 C:/GitHub/Z80-Simulator/source/mapState.cpp:
 
 C:/MinGW/include/psapi.h:
-
-C:/GitHub/Z80-Simulator/include/system.hpp:
 
 C:/GitHub/Z80-Simulator/source/renderProgram.cpp:
 

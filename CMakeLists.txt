@@ -9,6 +9,7 @@ add_executable(z80
 	include/controller.hpp		source/controller.cpp
 	include/game.hpp 			source/game.cpp
 	include/graphics.hpp 		source/graphics.cpp
+	include/instructions.hpp
 	include/main.hpp 			source/main.cpp
 	include/mapState.hpp		source/mapState.cpp
 	include/renderBuffer.hpp 	source/renderBuffer.cpp
