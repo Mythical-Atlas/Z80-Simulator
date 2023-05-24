@@ -21,22 +21,33 @@
 
 #define Z80_TOP_LEFT 32, 13
 #define Z80_SIZE     14, 21
+#define Z80_MIDDLE   6
 
-#define ROM_TOP_LEFT 80, 42
-#define RAM_TOP_LEFT 118, 42
-#define MEM_IC_SIZE  10, 15
+#define ROM_TOP_LEFT  80, 42
+#define RAM_TOP_LEFT  118, 42
+#define MEM_IC_SIZE   10, 15
+#define MEM_IC_MIDDLE 4
 
 #define CLOCK_TOP_LEFT 20, 13
 #define CLOCK_SIZE     4, 5
+#define CLOCK_MIDDLE   1
 
 #define VCC_1_TOP_LEFT 18, 22
 #define VCC_2_TOP_LEFT 48, 26
 #define VCC_3_TOP_LEFT 88, 39
 #define VCC_4_TOP_LEFT 126, 39
 
-#define GND_1_TOP_LEFT 52, 26
-#define GND_2_TOP_LEFT 78, 57
-#define GND_3_TOP_LEFT 116, 57
+#define GND_1_POS 52, 26
+#define GND_2_POS 78, 57
+#define GND_3_POS 116, 57
+
+#define RW_BUS_RAISE 7
+#define RW_BUS_BUFFER 1
+
+#define DATA_BUS_DIP          0
+#define DATA_BUS_RAISE        9
+#define DATA_BUS_LEFT_BUFFER  1
+#define DATA_BUS_RIGHT_BUFFER 3
 
 #define SHP(x, y, i) wt.setHPointer(x, y, &circuit.netValues[i])
 #define SHPS(x1, x2, y, i) for(int x = x1; x <= x2; x++) {SHP(x, y, i);}
@@ -106,12 +117,30 @@ public:
 	void handleEvent(SDL_Event* event);
 
 	void initWires() {
+		int clockWireL = vec2(CLOCK_TOP_LEFT).x + CLOCK_MIDDLE + 1;
+		int clockWireR = vec2(Z80_TOP_LEFT).x - 1;
+		int clockWireT = vec2(CLOCK_TOP_LEFT).y + vec2(CLOCK_SIZE).y;
+		int clockWireB = vec2(Z80_TOP_LEFT).y + 6;
+
+		int z80P1L = vec2(Z80_TOP_LEFT).x;
+		int z80P1T = vec2(Z80_TOP_LEFT).y + 1;
+		int z80P21L = vec2(Z80_TOP_LEFT).x + vec2(Z80_SIZE).x;
+		int z80P21T = vec2(Z80_TOP_LEFT).y + vec2(Z80_SIZE).y - 1;
+
+		int rwBusL = z80P21L + RW_BUS_BUFFER + 1;
+		int rwBusT = z80P21T - RW_BUS_RAISE - 1;
+
+		int dBusL1 = z80P1L - DATA_BUS_LEFT_BUFFER - 8;
+		int dBusT1 = z80P21T + DATA_BUS_DIP + 3;
+		int dBusL2 = z80P21L + DATA_BUS_RIGHT_BUFFER + 1;
+		int dBusT2 = dBusT1 - DATA_BUS_RAISE;
+
 		// clk
-		SVP(22, 18, 0); SHPS(22, 31, 19, 0);
+		SVPS(clockWireL, clockWireT, clockWireB - 1, 0); SHPS(clockWireL, clockWireR, clockWireB, 0);
 		// rd
-		SHPS(46, 54, 33, 1); SVPS(55, 27, 32, 1); SHPS(55, 134, 27, 1); SVPS(96, 27, 48, 1); SHPS(90, 95, 49, 1); SVPS(135, 27, 48, 1); SHPS(128, 134, 49, 1);
+		SHPS(z80P21L, rwBusL, z80P21T, 1); SVPS(rwBusL + 1, rwBusT + 1, 32, 1); SHPS(rwBusL + 1, 134, rwBusT + 1, 1); SVPS(96, rwBusT + 1, 48, 1); SHPS(90, 95, 49, 1); SVPS(135, rwBusT + 1, 48, 1); SHPS(128, 134, 49, 1);
 		// wr
-		SHPS(46, 53, 32, 2); SVPS(54, 26, 31, 2); SHPS(54, 129, 26, 2); SVPS(92, 26, 43, 2); SHPS(90, 91, 44, 2); SVPS(130, 26, 43, 2); SHPS(128, 129, 44, 2);
+		SHPS(z80P21L, rwBusL - 1, z80P21T - 1, 2); SVPS(rwBusL, rwBusT, 31, 2); SHPS(rwBusL, 129, rwBusT, 2); SVPS(92, rwBusT, 43, 2); SHPS(90, 91, 44, 2); SVPS(130, rwBusT, 43, 2); SHPS(128, 129, 44, 2);
 		// a0
 		SHPS(46, 107, 24, 3); SVPS(70, 24, 51, 3); SHPS(70, 79, 52, 3); SVPS(108, 24, 51, 3); SHPS(108, 117, 52, 3);
 		// a1
@@ -141,21 +170,21 @@ public:
 		// a13
 		SHPS(28, 31, 16, 16); SVPS(28, 9, 15, 16); SHPS(28, 49, 9, 16); SVPS(50, 9, 10, 16); SHPS(50, 130, 11, 16); SVPS(98, 11, 50, 16); SHPS(90, 97, 51, 16); SVPS(131, 11, 44, 16); SHPS(128, 130, 45, 16);
 		// d0
-		SHPS(21, 31, 27, 17); SVPS(21, 27, 42, 17); SHPS(21, 64, 43, 17); SVPS(65, 37, 42, 17); SHPS(65, 106, 37, 17); SVPS(69, 37, 52, 17); SHPS(69, 79, 53, 17); SVPS(107, 37, 52, 17); SHPS(107, 117, 53, 17);
+		SHPS(dBusL1 + 0, 31, 27, 17); SVPS(dBusL1 + 0, 27, dBusT1 + 6, 17); SHPS(dBusL1 + 0, dBusL2 + 6, dBusT1 + 7, 17); SVPS(dBusL2 + 7, dBusT2 + 7, dBusT1 + 6, 17); SHPS(dBusL2 + 7, 106, dBusT2 + 7, 17); SVPS(69, dBusT2 + 7, 52, 17); SHPS(69, 79, 53, 17); SVPS(107, dBusT2 + 7, 52, 17); SHPS(107, 117, 53, 17);
 		// d1
-		SHPS(22, 31, 28, 18); SVPS(22, 28, 41, 18); SHPS(22, 63, 42, 18); SVPS(64, 36, 41, 18); SHPS(64, 105, 36, 18); SVPS(68, 36, 53, 18); SHPS(68, 79, 54, 18); SVPS(106, 36, 53, 18); SHPS(106, 117, 54, 18);
+		SHPS(dBusL1 + 1, 31, 28, 18); SVPS(dBusL1 + 1, 28, dBusT1 + 5, 18); SHPS(dBusL1 + 1, dBusL2 + 5, dBusT1 + 6, 18); SVPS(dBusL2 + 6, dBusT2 + 6, dBusT1 + 5, 18); SHPS(dBusL2 + 6, 105, dBusT2 + 6, 18); SVPS(68, dBusT2 + 6, 53, 18); SHPS(68, 79, 54, 18); SVPS(106, dBusT2 + 6, 53, 18); SHPS(106, 117, 54, 18);
 		// d2
-		SHPS(23, 31, 25, 19); SVPS(23, 25, 40, 19); SHPS(23, 62, 41, 19); SVPS(63, 35, 40, 19); SHPS(63, 104, 35, 19); SVPS(67, 35, 54, 19); SHPS(67, 79, 55, 19); SVPS(105, 35, 54, 19); SHPS(105, 117, 55, 19);
+		SHPS(dBusL1 + 2, 31, 25, 19); SVPS(dBusL1 + 2, 25, dBusT1 + 4, 19); SHPS(dBusL1 + 2, dBusL2 + 4, dBusT1 + 5, 19); SVPS(dBusL2 + 5, dBusT2 + 5, dBusT1 + 4, 19); SHPS(dBusL2 + 5, 104, dBusT2 + 5, 19); SVPS(67, dBusT2 + 5, 54, 19); SHPS(67, 79, 55, 19); SVPS(105, dBusT2 + 5, 54, 19); SHPS(105, 117, 55, 19);
 		// d3
-		SHPS(24, 31, 21, 20); SVPS(24, 21, 39, 20); SHPS(24, 61, 40, 20); SVPS(62, 34, 39, 20); SHPS(62, 140, 34, 20); SVPS(103, 34, 55, 20); SHPS(90, 102, 56, 20); SVPS(141, 34, 55, 20); SHPS(128, 140, 56, 20);
+		SHPS(dBusL1 + 3, 31, 21, 20); SVPS(dBusL1 + 3, 21, dBusT1 + 3, 20); SHPS(dBusL1 + 3, dBusL2 + 3, dBusT1 + 4, 20); SVPS(dBusL2 + 4, dBusT2 + 4, dBusT1 + 3, 20); SHPS(dBusL2 + 4, 140, dBusT2 + 4, 20); SVPS(103, dBusT2 + 4, 55, 20); SHPS(90, 102, 56, 20); SVPS(141, dBusT2 + 4, 55, 20); SHPS(128, 140, 56, 20);
 		// d4
-		SHPS(25, 31, 20, 21); SVPS(25, 20, 38, 21); SHPS(25, 60, 39, 21); SVPS(61, 33, 38, 21); SHPS(61, 139, 33, 21); SVPS(102, 33, 54, 21); SHPS(90, 101, 55, 21); SVPS(140, 33, 54, 21); SHPS(128, 139, 55, 21);
+		SHPS(dBusL1 + 4, 31, 20, 21); SVPS(dBusL1 + 4, 20, dBusT1 + 2, 21); SHPS(dBusL1 + 4, dBusL2 + 2, dBusT1 + 3, 21); SVPS(dBusL2 + 3, dBusT2 + 3, dBusT1 + 2, 21); SHPS(dBusL2 + 3, 139, dBusT2 + 3, 21); SVPS(102, dBusT2 + 3, 54, 21); SHPS(90, 101, 55, 21); SVPS(140, dBusT2 + 3, 54, 21); SHPS(128, 139, 55, 21);
 		// d5
-		SHPS(26, 31, 22, 22); SVPS(26, 22, 37, 22); SHPS(26, 59, 38, 22); SVPS(60, 32, 37, 22); SHPS(60, 138, 32, 22); SVPS(101, 32, 53, 22); SHPS(90, 100, 54, 22); SVPS(139, 32, 53, 22); SHPS(128, 138, 54, 22);
+		SHPS(dBusL1 + 5, 31, 22, 22); SVPS(dBusL1 + 5, 22, dBusT1 + 1, 22); SHPS(dBusL1 + 5, dBusL2 + 1, dBusT1 + 2, 22); SVPS(dBusL2 + 2, dBusT2 + 2, dBusT1 + 1, 22); SHPS(dBusL2 + 2, 138, dBusT2 + 2, 22); SVPS(101, dBusT2 + 2, 53, 22); SHPS(90, 100, 54, 22); SVPS(139, dBusT2 + 2, 53, 22); SHPS(128, 138, 54, 22);
 		// d6
-		SHPS(27, 31, 23, 23); SVPS(27, 23, 36, 23); SHPS(27, 58, 37, 23); SVPS(59, 31, 36, 23); SHPS(59, 137, 31, 23); SVPS(100, 31, 52, 23); SHPS(90, 99, 53, 23); SVPS(138, 31, 52, 23); SHPS(128, 137, 53, 23);
+		SHPS(dBusL1 + 6, 31, 23, 23); SVPS(dBusL1 + 6, 23, dBusT1 + 0, 23); SHPS(dBusL1 + 6, dBusL2 + 0, dBusT1 + 1, 23); SVPS(dBusL2 + 1, dBusT2 + 1, dBusT1 + 0, 23); SHPS(dBusL2 + 1, 137, dBusT2 + 1, 23); SVPS(100, dBusT2 + 1, 52, 23); SHPS(90, 99, 53, 23); SVPS(138, dBusT2 + 1, 52, 23); SHPS(128, 137, 53, 23);
 		// d7
-		SHPS(28, 31, 26, 24); SVPS(28, 26, 35, 24); SHPS(28, 57, 36, 24); SVPS(58, 30, 35, 24); SHPS(58, 136, 30, 24); SVPS(99, 30, 51, 24); SHPS(90, 98, 52, 24); SVPS(137, 30, 51, 24); SHPS(128, 136, 52, 24);
+		SHPS(dBusL1 + 7, 31, 26, 24); SVPS(dBusL1 + 7, 26, dBusT1 - 1, 24); SHPS(dBusL1 + 7, dBusL2 - 1, dBusT1 + 0, 24); SVPS(dBusL2 + 0, dBusT2 + 0, dBusT1 - 1, 24); SHPS(dBusL2 + 0, 136, dBusT2 + 0, 24); SVPS(99, dBusT2 + 0, 51, 24); SHPS(90, 98, 52, 24); SVPS(137, dBusT2 + 0, 51, 24); SHPS(128, 136, 52, 24);
 	}
 
 	void renderString(Sprite font, vec2 pos, string text, RenderProgram* rp, RenderBuffer* rb) {
@@ -298,7 +327,254 @@ public:
 		if(x != -1 && y != -1) {wireSprite.render(rp, rb, x, y);}
 	}
 
-	void renderCircuit() {    
+	void renderZ80() {
+		int bl = vec2(Z80_TOP_LEFT).x + vec2(CIRCUIT_TOP_LEFT).x;
+		int br = bl + vec2(Z80_SIZE).x;
+		int bt = vec2(Z80_TOP_LEFT).y + vec2(CIRCUIT_TOP_LEFT).y;
+		int bb = bt + vec2(Z80_SIZE).y;
+
+		// corners
+		wireSprite.pos = vec2(bl, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 3, 0);
+		wireSprite.pos = vec2(br, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 4, 0);
+		wireSprite.pos = vec2(bl, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 5, 0);
+		wireSprite.pos = vec2(br, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 6, 0);
+
+		// top and bottom
+		for(int i = 0; i < br - bl - 1; i++) {
+			wireSprite.pos = (vec2(i, 0) + vec2(bl + 1, bt)) * vec2(8, 12);
+
+			if(i == Z80_MIDDLE) {wireSprite.render(&rp, &rb, 11, 3);} // notch
+			else {wireSprite.render(&rp, &rb, 1, 0);}
+			wireSprite.pos = (vec2(i, 0) + vec2(bl + 1, bb)) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 0);
+		}
+
+		// sides
+		for(int i = 0; i < bb - bt - 1; i++) {
+			wireSprite.pos = (vec2(0, i) + vec2(bl, bt + 1)) * vec2(8, 12); wireSprite.render(&rp, &rb, 8, 0);
+
+			wireSprite.pos = (vec2(0, i) + vec2(br, bt + 1)) * vec2(8, 12); wireSprite.render(&rp, &rb, 7, 0);
+		}
+
+		renderString(fontSprite, vec2(bl, bt + 1) * vec2(8, 12), 
+			" A11       A10\n"
+			" A12        A9\n"
+			" A13        A8\n"
+			" A14        A7\n"
+			" A15        A6\n"
+			" CLK        A5\n"
+			" D4         A4\n"
+			" D3         A3\n"
+			" D5         A2\n"
+			" D6         A1\n"
+			" +5V        A0\n"
+			" D2        GND\n"
+			" D7      /RFSH\n"
+			" D0        /M1\n"
+			" D1     /RESET\n"
+			" /INT   /BUSRQ\n"
+			" /NMI    /WAIT\n"
+			" /HALT /BUSACK\n"
+			" /MREQ     /WR\n"
+			" /IORQ     /RD\n"
+			"\n"
+			"Z80"
+		, &rp, &rb);
+	}
+
+	void renderROM () {
+		int bl = vec2(ROM_TOP_LEFT).x + vec2(CIRCUIT_TOP_LEFT).x;
+		int br = bl + vec2(MEM_IC_SIZE).x;
+		int bt = vec2(ROM_TOP_LEFT).y + vec2(CIRCUIT_TOP_LEFT).y;
+		int bb = bt + vec2(MEM_IC_SIZE).y;
+
+		// corners
+		wireSprite.pos = vec2(bl, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 3, 0);
+		wireSprite.pos = vec2(br, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 4, 0);
+		wireSprite.pos = vec2(bl, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 5, 0);
+		wireSprite.pos = vec2(br, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 6, 0);
+
+		// top and bottom
+		for(int i = 0; i < br - bl - 1; i++) {
+			wireSprite.pos = (vec2(i, 0) + vec2(bl + 1, bt)) * vec2(8, 12);
+			if(i == MEM_IC_MIDDLE) {wireSprite.render(&rp, &rb, 11, 3);} // notch
+			else {wireSprite.render(&rp, &rb, 1, 0);}
+
+			wireSprite.pos = (vec2(i, 0) + vec2(bl + 1, bb)) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 0);
+		}
+
+		// sides
+		for(int i = 0; i < bb - bt - 1; i++) {
+			wireSprite.pos = (vec2(0, i) + vec2(bl, bt + 1)) * vec2(8, 12);
+			if(i != 0) {wireSprite.render(&rp, &rb, 8, 0);}
+			else {wireSprite.render(&rp, &rb, 2, 0);}
+
+			wireSprite.pos = (vec2(0, i) + vec2(br, bt + 1)) * vec2(8, 12);
+			if(i != 2) {wireSprite.render(&rp, &rb, 7, 0);}
+			else {wireSprite.render(&rp, &rb, 2, 0);}
+		}
+
+		renderString(fontSprite, vec2(bl, bt + 1) * vec2(8, 12), 
+			"       +5V\n"
+			" A12   /WE\n"
+			" A7       \n"
+			" A6     A8\n"
+			" A5     A9\n"
+			" A4    A11\n"
+			" A3    /OE\n"
+			" A2    A10\n"
+			" A1    /CE\n"
+			" A0   I/O7\n"
+			" I/O0 I/O6\n"
+			" I/O1 I/O5\n"
+			" I/O2 I/O4\n"
+			" GND  I/O3\n"
+			"\n"
+			"ROM"
+		, &rp, &rb);
+	}
+
+	void renderRAM() {
+		int bl = vec2(RAM_TOP_LEFT).x + vec2(CIRCUIT_TOP_LEFT).x;
+		int br = bl + vec2(MEM_IC_SIZE).x;
+		int bt = vec2(RAM_TOP_LEFT).y + vec2(CIRCUIT_TOP_LEFT).y;
+		int bb = bt + vec2(MEM_IC_SIZE).y;
+
+		// corners
+		wireSprite.pos = vec2(bl, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 3, 0);
+		wireSprite.pos = vec2(br, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 4, 0);
+		wireSprite.pos = vec2(bl, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 5, 0);
+		wireSprite.pos = vec2(br, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 6, 0);
+
+		// top and bottom
+		for(int i = 0; i < br - bl - 1; i++) {
+			wireSprite.pos = (vec2(i, 0) + vec2(bl + 1, bt)) * vec2(8, 12);
+			if(i == MEM_IC_MIDDLE) {wireSprite.render(&rp, &rb, 11, 3);} // notch
+			else {wireSprite.render(&rp, &rb, 1, 0);}
+
+			wireSprite.pos = (vec2(i, 0) + vec2(bl + 1, bb)) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 0);
+		}
+
+		// sides
+		for(int i = 0; i < bb - bt - 1; i++) {
+			wireSprite.pos = (vec2(0, i) + vec2(bl, bt + 1)) * vec2(8, 12);
+			if(i != 0) {wireSprite.render(&rp, &rb, 8, 0);}
+			else {wireSprite.render(&rp, &rb, 2, 0);}
+
+			wireSprite.pos = (vec2(0, i) + vec2(br, bt + 1)) * vec2(8, 12); wireSprite.render(&rp, &rb, 7, 0);
+		}
+
+		renderString(fontSprite, vec2(bl, bt + 1) * vec2(8, 12), 
+			"       +5V\n"
+			" A12   /WE\n"
+			" A7    CS2\n"
+			" A6     A8\n"
+			" A5     A9\n"
+			" A4    A11\n"
+			" A3    /OE\n"
+			" A2    A10\n"
+			" A1   /CS1\n"
+			" A0   I/O7\n"
+			" I/O0 I/O6\n"
+			" I/O1 I/O5\n"
+			" I/O2 I/O4\n"
+			" GND  I/O3\n"
+			"\n"
+			"RAM"
+		, &rp, &rb);
+	}
+
+	void renderClock() {
+		int bl = vec2(CLOCK_TOP_LEFT).x + vec2(CIRCUIT_TOP_LEFT).x;
+		int br = bl + vec2(CLOCK_SIZE).x;
+		int bt = vec2(CLOCK_TOP_LEFT).y + vec2(CIRCUIT_TOP_LEFT).y;
+		int bb = bt + vec2(CLOCK_SIZE).y;
+
+		// corners
+		wireSprite.pos = vec2(bl, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 3, 0);
+		wireSprite.pos = vec2(br, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 4, 0);
+		wireSprite.pos = vec2(bl, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 5, 0);
+		wireSprite.pos = vec2(br, bb) * vec2(8, 12); wireSprite.render(&rp, &rb, 6, 0);
+
+		// top and bottom
+		for(int i = 0; i < br - bl - 1; i++) {
+			wireSprite.pos = vec2(bl + 1 + i, bt) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 0);
+
+			wireSprite.pos = vec2(bl + 1 + i, bb) * vec2(8, 12);
+			if(i == CLOCK_MIDDLE) {wireSprite.render(&rp, &rb, 9, 0);} // pin
+			else {wireSprite.render(&rp, &rb, 1, 0);}
+		}
+
+		// sides
+		for(int i = 0; i < bb - bt - 1; i++) {
+			wireSprite.pos = vec2(bl, bt + 1 + i) * vec2(8, 12); wireSprite.render(&rp, &rb, 2, 0);
+
+			wireSprite.pos = vec2(br, bt + 1 + i) * vec2(8, 12); wireSprite.render(&rp, &rb, 2, 0);
+		}
+
+		// indicator
+		if(circuit.netValues[0] == 2) {
+			for(int y = 0; y < bb - bt - 3; y++) {
+				for(int x = 0; x < br - bl - 1; x++) {
+					wireSprite.pos = vec2(bl + 1 + x, bt + 1 + y) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 1);
+				}
+			}
+		}
+		if(circuit.netValues[0] == 3) {
+			for(int y = 0; y < bb - bt - 3; y++) {
+				for(int x = 0; x < br - bl - 1; x++) {
+					wireSprite.pos = vec2(bl + 1 + x, bt + 3 + y) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 2);
+				}
+			}
+		}
+	}
+
+	void renderVCCs() {
+		int v1l = vec2(VCC_1_TOP_LEFT).x;
+		int v1t = vec2(VCC_1_TOP_LEFT).y;
+		int v2l = vec2(VCC_2_TOP_LEFT).x;
+		int v2t = vec2(VCC_2_TOP_LEFT).y;
+		int v3l = vec2(VCC_3_TOP_LEFT).x;
+		int v3t = vec2(VCC_3_TOP_LEFT).y;
+		int v4l = vec2(VCC_4_TOP_LEFT).x;
+		int v4t = vec2(VCC_4_TOP_LEFT).y;
+
+		renderString(fontSprite, vec2(v1l, v1t) * vec2(8, 12), "VCC", &rp, &rb);
+		renderString(fontSprite, vec2(v2l, v2t) * vec2(8, 12), "VCC", &rp, &rb);
+		renderString(fontSprite, vec2(v3l, v3t) * vec2(8, 12), "VCC", &rp, &rb);
+		renderString(fontSprite, vec2(v4l, v4t) * vec2(8, 12), "VCC", &rp, &rb);
+
+		// underlines
+		wireSprite.pos = vec2(v1l, v1t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+		wireSprite.pos = vec2(v1l + 1, v1t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 3);
+		wireSprite.pos = vec2(v1l + 2, v1t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+
+		wireSprite.pos = vec2(v2l, v2t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+		wireSprite.pos = vec2(v2l + 1, v2t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 3);
+		wireSprite.pos = vec2(v2l + 2, v2t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+
+		wireSprite.pos = vec2(v3l, v3t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+		wireSprite.pos = vec2(v3l + 1, v3t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 3);
+		wireSprite.pos = vec2(v3l + 2, v3t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+
+		wireSprite.pos = vec2(v4l, v4t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+		wireSprite.pos = vec2(v4l + 1, v4t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 3);
+		wireSprite.pos = vec2(v4l + 2, v4t + 1) * vec2(8, 12); wireSprite.render(&rp, &rb, 0, 3);
+	}
+
+	void renderGNDs() {
+		wireSprite.pos = vec2(GND_1_POS) * vec2(8, 12); wireSprite.render(&rp, &rb, 2, 3);
+		wireSprite.pos = vec2(GND_2_POS) * vec2(8, 12); wireSprite.render(&rp, &rb, 2, 3);
+		wireSprite.pos = vec2(GND_3_POS) * vec2(8, 12); wireSprite.render(&rp, &rb, 2, 3);
+	}
+
+	void renderCircuit() {
+		renderZ80();
+		renderROM();
+		renderRAM();
+		//renderClock();
+		//renderVCCs();
+		//renderGNDs();
+
 		for(int y = 0; y < 60; y++) {
 			for(int x = 0; x < 160; x++) {
 				int l = 0;
@@ -315,7 +591,7 @@ public:
 			}
 		}
 
-		// clock border
+		/*// clock border
 		wireSprite.pos = vec2(20, 13) * vec2(8, 12); wireSprite.render(&rp, &rb, 3, 0);
 		wireSprite.pos = vec2(21, 13) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 0);
 		wireSprite.pos = vec2(22, 13) * vec2(8, 12); wireSprite.render(&rp, &rb, 1, 0);
@@ -558,7 +834,7 @@ public:
 			if(i != 0) {wireSprite.render(&rp, &rb, 8, 0);}
 			else {wireSprite.render(&rp, &rb, 2, 0);}
 			wireSprite.pos = (vec2(0, i) + vec2(128, 43)) * vec2(8, 12); wireSprite.render(&rp, &rb, 7, 0);
-		}
+		}*/
 	}
 
 	void renderHistogram(Sprite wireSprite, vec2 leftCenter, bool* history, RenderProgram* rp, RenderBuffer* rb) {

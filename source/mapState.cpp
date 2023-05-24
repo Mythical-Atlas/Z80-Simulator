@@ -153,7 +153,7 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
     renderCircuit();
 
-    renderString(fontSprite, vec2(1, 40) * vec2(8, 12), "Address Bus: 0x" + circuit.hex16(circuit.getAddressBus()), &rp, &rb);
+    /*renderString(fontSprite, vec2(1, 40) * vec2(8, 12), "Address Bus: 0x" + circuit.hex16(circuit.getAddressBus()), &rp, &rb);
     renderString(fontSprite, vec2(1, 41) * vec2(8, 12), "Data Bus: 0x" + circuit.hex8(circuit.getDataBus()), &rp, &rb);
     renderString(fontSprite, vec2(1, 43) * vec2(8, 12), "PC: 0x" + circuit.hex16(circuit.pc), &rp, &rb);
 
@@ -199,7 +199,7 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
     renderHistogram(wireSprite, vec2(20, 80) * vec2(8, 12), m1His, &rp, &rb);
     renderHistogram(wireSprite, vec2(20, 84) * vec2(8, 12), datHis0, &rp, &rb);
     renderHistogram(wireSprite, vec2(20, 84) * vec2(8, 12), datHis1, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 88) * vec2(8, 12), rfshHis, &rp, &rb);
+    renderHistogram(wireSprite, vec2(20, 88) * vec2(8, 12), rfshHis, &rp, &rb);*/
 }
 void MapState::unload() {
 	mixer.unload();
