@@ -13,6 +13,7 @@
 #include "controller.hpp"
 #include "wires.hpp"
 #include "system.hpp"
+#include "instructions.hpp"
 
 #define HISTORY_LENGTH 40
 
@@ -581,6 +582,154 @@ public:
 				}
 			}
 		}
+	}
+
+	string decodeInstruction(int instruction) {
+		string output = "";
+
+		if(instruction == 0x00) {return "No Operation";}
+
+		if(
+			instruction >= 0x00 && instruction <= 0x3F && (
+				instruction % 16 == 1 ||
+				instruction % 16 == 6 && instruction != 0x36 ||
+				instruction % 16 == 10 ||
+				instruction % 16 == 14
+			) ||
+			instruction >= 0x40 && instruction <= 0x6F ||
+			instruction >= 0x78 && instruction <= 0x7F ||
+			instruction == 0xF9
+		) {
+			output += "Load ";
+
+			if(instruction >= 0x00 && instruction <= 0x3F) {
+				if(instruction % 8 == 6) {output += "Immediate Byte Into ";}
+				if(instruction % 16 == 1) {output += "Immediate Short Into ";}
+				if(instruction % 8 == 6) {output += "Indirect Byte Pointed To by HL Into ";}
+				if(instruction == 0x0A) {output += "Indirect Byte Pointed To by BC Into ";}
+				if(instruction == 0x1A) {output += "Indirect Byte Pointed To by DE Into ";}
+				if(instruction == 0x2A) {output += "Indirect Short Pointed To by Immediate Short Into ";}
+				if(instruction == 0x3A) {output += "Indirect Byte Pointed To by Immediate Short Into ";}
+			}
+			if(instruction >= 0x40 && instruction <= 0x7F) {
+				if(instruction % 8 == 0) {output += "Contents of B Into ";}
+				if(instruction % 8 == 1) {output += "Contents of C Into ";}
+				if(instruction % 8 == 2) {output += "Contents of D Into ";}
+				if(instruction % 8 == 3) {output += "Contents of E Into ";}
+				if(instruction % 8 == 4) {output += "Contents of H Into ";}
+				if(instruction % 8 == 5) {output += "Contents of L Into ";}
+				if(instruction % 8 == 6) {output += "Indirect Byte Pointed To by HL Into ";}
+				if(instruction % 8 == 7) {output += "Contents of Accumulator Into ";}
+			}
+			if(instruction == 0xF9) {output += "Contents of HL Into ";}
+
+			if(instruction >= 0x00 && instruction <= 0x3F) {
+				if(instruction == 0x01) {output += "BC";}
+				if(instruction == 0x11) {output += "DE";}
+				if(instruction == 0x21 || instruction == 0x2A) {output += "HL";}
+				if(instruction == 0x31) {output += "SP";}
+				if(instruction == 0x06) {output += "B";}
+				if(instruction == 0x0E) {output += "C";}
+				if(instruction == 0x16) {output += "D";}
+				if(instruction == 0x1E) {output += "E";}
+				if(instruction == 0x26) {output += "H";}
+				if(instruction == 0x2E) {output += "L";}
+				if(instruction == 0x0A ||instruction == 0x1A ||instruction == 0x3A || instruction == 0x3E) {output += "Accumulator";}
+			}
+			if(instruction >= 0x40 && instruction <= 0x7F) {
+				if(instruction >= 0x40 && instruction <= 0x47) {output += "B";}
+				if(instruction >= 0x48 && instruction <= 0x4F) {output += "C";}
+				if(instruction >= 0x50 && instruction <= 0x57) {output += "D";}
+				if(instruction >= 0x58 && instruction <= 0x5F) {output += "E";}
+				if(instruction >= 0x60 && instruction <= 0x67) {output += "H";}
+				if(instruction >= 0x68 && instruction <= 0x6F) {output += "L";}
+				if(instruction >= 0x78 && instruction <= 0x7F) {output += "Accumulator";}
+			}
+			if(instruction == 0xF9) {output += "SP";}
+		}
+		if(
+			instruction >= 0x00 && instruction <= 0x3F && (instruction % 16 == 2) || instruction == 0x36 ||
+			instruction >= 0x70 && instruction <= 0x77 && instruction != 0x76
+		) {
+			output += "Store ";
+
+			if(instruction >= 0x00 && instruction <= 0x3F) {
+				if(instruction == 0x02 || instruction == 0x12 || instruction == 0x32) {output += "Contents of Accumulator To ";}
+				if(instruction == 0x22) {output += "Contents of HL To ";}
+				if(instruction == 0x36) {output += "Immediate Byte To ";}
+			}
+			if(instruction >= 0x70 && instruction <= 0x77) {
+				if(instruction == 0x70) {output += "Contents of B To ";}
+				if(instruction == 0x71) {output += "Contents of C To ";}
+				if(instruction == 0x72) {output += "Contents of D To ";}
+				if(instruction == 0x73) {output += "Contents of E To ";}
+				if(instruction == 0x74) {output += "Contents of H To ";}
+				if(instruction == 0x75) {output += "Contents of L To ";}
+				if(instruction == 0x77) {output += "Contents of Accumulator To ";}
+			}
+
+			if(instruction >= 0x70 && instruction <= 0x77) {output += "Indirect Byte Pointed To by HL";}
+			if(instruction >= 0x00 && instruction <= 0x3F) {
+				if(instruction == 0x02) {output += "Indirect Byte Pointed To by BC";}
+				if(instruction == 0x12) {output += "Indirect Byte Pointed To by DE";}
+				if(instruction == 0x22 || instruction == 0x32) {output += "Indirect Byte Pointed To by Immediate Short";}
+				if(instruction == 0x36) {output += "Indirect Byte Pointed To by HL";}
+			}
+		}
+
+		if(instruction >= 0x00 && instruction <= 0x3F && (instruction % 8 == 4 || instruction % 16 == 3)) {
+			output += "Increment ";
+
+			if(instruction == 0x03) {output += "BC";}
+			if(instruction == 0x13) {output += "DE";}
+			if(instruction == 0x23) {output += "HL";}
+			if(instruction == 0x33) {output += "SP";}
+			if(instruction == 0x04) {output += "B";}
+			if(instruction == 0x14) {output += "D";}
+			if(instruction == 0x24) {output += "H";}
+			if(instruction == 0x34) {output += "Indirect Byte Pointed To by HL";}
+			if(instruction == 0x0C) {output += "C";}
+			if(instruction == 0x1C) {output += "E";}
+			if(instruction == 0x2C) {output += "L";}
+			if(instruction == 0x3C) {output += "Accumulator";}
+		}
+		if(instruction >= 0x00 && instruction <= 0x3F && (instruction % 8 == 5 || instruction % 16 == 13)) {
+			output += "Decrement ";
+
+			if(instruction == 0x05) {output += "B";}
+			if(instruction == 0x15) {output += "D";}
+			if(instruction == 0x25) {output += "H";}
+			if(instruction == 0x35) {output += "Indirect Byte Pointed To by HL";}
+			if(instruction == 0x0B) {output += "BC";}
+			if(instruction == 0x1B) {output += "DE";}
+			if(instruction == 0x2B) {output += "HL";}
+			if(instruction == 0x3B) {output += "SP";}
+			if(instruction == 0x0D) {output += "C";}
+			if(instruction == 0x1D) {output += "E";}
+			if(instruction == 0x2D) {output += "L";}
+			if(instruction == 0x3D) {output += "Accumulator";}
+		}
+
+		return output;
+	}
+
+	string decodeMCycles(int instruction) {
+		if(instructionMCycles[instruction] == M_F) {return "(1): Fetch";}
+		if(instructionMCycles[instruction] == M_FR) {return "(2): Fetch, Read";}
+		if(instructionMCycles[instruction] == M_FW) {return "(2): Fetch, Write";}
+		if(instructionMCycles[instruction] == M_FRR) {return "(3): Fetch, Read, Read";}
+		if(instructionMCycles[instruction] == M_FRW) {return "(3): Fetch, Read, Write";}
+		if(instructionMCycles[instruction] == M_FTR) {return "(4): Fetch, Read, Read, Read";}
+		if(instructionMCycles[instruction] == M_FQR) {return "(5): Fetch, Read, Read, Read, Read";}
+	}
+	string decodeTCycles(int instruction) {
+		if(instructionMCycles[instruction] == M_F) {return "(4): 4";}
+		if(instructionMCycles[instruction] == M_FR) {return "(7): 4, 3";}
+		if(instructionMCycles[instruction] == M_FW) {return "(7): 4, 3";}
+		if(instructionMCycles[instruction] == M_FRR) {return "(10): 4, 3, 3";}
+		if(instructionMCycles[instruction] == M_FRW) {return "(10): 4, 3, 3";}
+		if(instructionMCycles[instruction] == M_FTR) {return "(13): 4, 3, 3, 3";}
+		if(instructionMCycles[instruction] == M_FQR) {return "(16): 4, 3, 3, 3, 3";}
 	}
 };
 

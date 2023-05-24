@@ -155,6 +155,7 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
     renderString(fontSprite, vec2(1, 40) * vec2(8, 12), "Address Bus: 0x" + circuit.hex16(circuit.getAddressBus()), &rp, &rb);
     renderString(fontSprite, vec2(1, 41) * vec2(8, 12), "Data Bus: 0x" + circuit.hex8(circuit.getDataBus()), &rp, &rb);
+    renderString(fontSprite, vec2(1, 43) * vec2(8, 12), "PC: 0x" + circuit.hex16(circuit.pc), &rp, &rb);
 
     if(circuit.currentTCycleHalf == 0) {renderString(fontSprite, vec2(10, 45) * vec2(8, 12), "First Half of T Cycle (Clock Just Rose)", &rp, &rb);}
     else if(circuit.currentTCycleHalf == 1) {renderString(fontSprite, vec2(10, 45) * vec2(8, 12), "Second Half of T Cycle (Clock Just Fell)", &rp, &rb);}
@@ -165,10 +166,18 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
     if(circuit.mType == 1) {renderString(fontSprite, vec2(10, 48) * vec2(8, 12), "Operation: Memory Read", &rp, &rb);}
     if(circuit.mType == 2) {renderString(fontSprite, vec2(10, 48) * vec2(8, 12), "Operation: Memory Write", &rp, &rb);}
 
-    renderString(fontSprite, vec2(10, 50) * vec2(8, 12), "Instruction: NOP", &rp, &rb);
-    renderString(fontSprite, vec2(10, 51) * vec2(8, 12), "Op Code: 0x00", &rp, &rb);
-    renderString(fontSprite, vec2(10, 52) * vec2(8, 12), "M Cycles (3): Fetch, Read, Read", &rp, &rb);
-    renderString(fontSprite, vec2(10, 53) * vec2(8, 12), "T Cycles (10): 4, 3, 3", &rp, &rb);
+    if(circuit.currentInstruction != -1) {
+        renderString(fontSprite, vec2(10, 50) * vec2(8, 12), "Instruction: " + decodeInstruction(circuit.currentInstruction), &rp, &rb);
+        renderString(fontSprite, vec2(10, 51) * vec2(8, 12), "Op Code: 0x" + circuit.hex8(circuit.currentInstruction), &rp, &rb);
+        renderString(fontSprite, vec2(10, 52) * vec2(8, 12), "M Cycles " + decodeMCycles(circuit.currentInstruction), &rp, &rb);
+        renderString(fontSprite, vec2(10, 53) * vec2(8, 12), "T Cycles " + decodeTCycles(circuit.currentInstruction), &rp, &rb);
+    }
+    else {
+        renderString(fontSprite, vec2(10, 50) * vec2(8, 12), "Instruction: Unknown", &rp, &rb);
+        renderString(fontSprite, vec2(10, 51) * vec2(8, 12), "Op Code: 0x??", &rp, &rb);
+        renderString(fontSprite, vec2(10, 52) * vec2(8, 12), "M Cycles (?): Unknown", &rp, &rb);
+        renderString(fontSprite, vec2(10, 53) * vec2(8, 12), "T Cycles (?): Unknown", &rp, &rb);
+    }
 
     renderString(fontSprite, vec2(10, 60) * vec2(8, 12),
         "   /CLK\n\n\n\n"

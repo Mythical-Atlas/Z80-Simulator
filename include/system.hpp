@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 
+#include "instructions.hpp"
+
 class Circuit {
 public:
     uint8_t instructionFetchControlValues[5 * 8] = {
@@ -101,6 +103,8 @@ public:
     int currentMCycle;
 
     int mType;
+    int currentInstruction;
+    int pc;
 
     uint16_t internalAddressBus;
     uint8_t internalDataBus;
@@ -117,6 +121,8 @@ public:
         currentMCycle = 0;
 
         mType = 0;
+        currentInstruction = -1;
+        pc = 0;
 
         internalAddressBus = 0;
         internalDataBus = 0;
@@ -222,23 +228,70 @@ public:
                 currentTCycle++;
             }
 
-            if(mType == 0 && currentTCycle == 4) {
-                currentMCycle++;
-                mType = 1;
-                currentTCycle = 0;
-                internalAddressBus++;
+            if(mType == 0) {
+                if(currentTCycle == 2 && currentTCycleHalf == 0) {currentInstruction = getDataBus();}
+                if(currentTCycle == 4) {
+                    currentTCycle = 0;
+                    pc++;
+
+                    if(instructionMCycles[currentInstruction] ==  M_F) {
+                        mType = 0;
+                        currentMCycle = 0;
+                        currentInstruction = -1;
+                    }
+                    else if(
+                        instructionMCycles[currentInstruction] ==  M_FR ||
+                        instructionMCycles[currentInstruction] ==  M_FRR ||
+                        instructionMCycles[currentInstruction] ==  M_FRW ||
+                        instructionMCycles[currentInstruction] ==  M_FTR ||
+                        instructionMCycles[currentInstruction] ==  M_FQR
+                    ) {
+                        mType = 1;
+                        currentMCycle++;
+                    }
+                    else if(instructionMCycles[currentInstruction] ==  M_FW) {
+                        mType = 2;
+                        currentMCycle++;
+                    }
+                }
             }
-            if(mType == 1 && currentTCycle == 3) {
-                currentMCycle++;
-                mType = 2;
-                currentTCycle = 0;
-                internalAddressBus++;
+            if(mType == 1) {
+                if(currentTCycle == 3) {
+                    currentTCycle = 0;
+                    pc++;
+
+                    if(
+                        instructionMCycles[currentInstruction] ==  M_FR ||
+                        instructionMCycles[currentInstruction] ==  M_FRR && currentMCycle == 2 ||
+                        instructionMCycles[currentInstruction] ==  M_FTR && currentMCycle == 3 ||
+                        instructionMCycles[currentInstruction] ==  M_FQR && currentMCycle == 4
+                    ) {
+                        mType = 0;
+                        currentMCycle = 0;
+                        currentInstruction = -1;
+                    }
+                    else if(
+                        instructionMCycles[currentInstruction] ==  M_FRR && currentMCycle < 2 ||
+                        instructionMCycles[currentInstruction] ==  M_FTR && currentMCycle < 3 ||
+                        instructionMCycles[currentInstruction] ==  M_FQR && currentMCycle < 4
+                    ) {
+                        mType = 1;
+                        currentMCycle++;
+                    }
+                    else if(instructionMCycles[currentInstruction] ==  M_FRW) {
+                        mType = 2;
+                        currentMCycle++;
+                    }
+                }
             }
-            if(mType == 2 && currentTCycle == 3) {
-                currentMCycle++;
-                mType = 0;
-                currentTCycle = 0;
-                internalAddressBus++;
+            if(mType == 2) {
+                if(currentTCycle == 3) {
+                    currentTCycle = 0;
+                    pc++;
+                    mType = 0;
+                    currentMCycle = 0;
+                    currentInstruction = -1;
+                }
             }
 
             setAddressBus(0);
@@ -246,7 +299,7 @@ public:
 
             if(mType == 0) {
                 setControlValues(instructionFetchControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
-                if(currentTCycle == 0 || currentTCycle == 1) {setAddressBus(internalAddressBus);}
+                if(currentTCycle == 0 || currentTCycle == 1) {setAddressBus(pc);}
                 //if(currentTCycle == 2 || currentTCycle == 3) {setAddressBus(0);}
             }
             if(mType == 1) {
