@@ -17,6 +17,27 @@
 
 #define HISTORY_LENGTH 40
 
+#define CIRCUIT_TOP_LEFT 0, 0
+
+#define Z80_TOP_LEFT 32, 13
+#define Z80_SIZE     14, 21
+
+#define ROM_TOP_LEFT 80, 42
+#define RAM_TOP_LEFT 118, 42
+#define MEM_IC_SIZE  10, 15
+
+#define CLOCK_TOP_LEFT 20, 13
+#define CLOCK_SIZE     4, 5
+
+#define VCC_1_TOP_LEFT 18, 22
+#define VCC_2_TOP_LEFT 48, 26
+#define VCC_3_TOP_LEFT 88, 39
+#define VCC_4_TOP_LEFT 126, 39
+
+#define GND_1_TOP_LEFT 52, 26
+#define GND_2_TOP_LEFT 78, 57
+#define GND_3_TOP_LEFT 116, 57
+
 #define SHP(x, y, i) wt.setHPointer(x, y, &circuit.netValues[i])
 #define SHPS(x1, x2, y, i) for(int x = x1; x <= x2; x++) {SHP(x, y, i);}
 #define SVP(x, y, i) wt.setVPointer(x, y, &circuit.netValues[i])
