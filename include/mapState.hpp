@@ -19,12 +19,12 @@
 
 #define CIRCUIT_TOP_LEFT 0, 0
 
-#define Z80_TOP_LEFT 32, 13
+#define Z80_TOP_LEFT 10, 11
 #define Z80_SIZE     14, 21
 #define Z80_MIDDLE   6
 
-#define ROM_TOP_LEFT  80, 42
-#define RAM_TOP_LEFT  118, 42
+#define ROM_TOP_LEFT  51, 33
+#define RAM_TOP_LEFT  89, 33
 #define MEM_IC_SIZE   10, 15
 #define MEM_IC_MIDDLE 4
 
@@ -42,12 +42,21 @@
 #define GND_3_POS 116, 57
 
 #define RW_BUS_RAISE 7
-#define RW_BUS_BUFFER 1
+#define RW_BUS_BUFFER 3
 
 #define DATA_BUS_DIP          0
 #define DATA_BUS_RAISE        9
 #define DATA_BUS_LEFT_BUFFER  1
-#define DATA_BUS_RIGHT_BUFFER 3
+#define DATA_BUS_RIGHT_BUFFER 5
+
+#define ROM_LEFT_BUFFER  1
+#define ROM_RIGHT_BUFFER 2
+#define RAM_LEFT_BUFFER  1
+#define RAM_RIGHT_BUFFER 2
+
+#define ADDRESS_TOP_BUFFER   0
+#define ADDRESS_LEFT_BUFFER  1
+#define ADDRESS_RIGHT_BUFFER 0
 
 #define SHP(x, y, i) wt.setHPointer(x, y, &circuit.netValues[i])
 #define SHPS(x1, x2, y, i) for(int x = x1; x <= x2; x++) {SHP(x, y, i);}
@@ -127,6 +136,16 @@ public:
 		int z80P21L = vec2(Z80_TOP_LEFT).x + vec2(Z80_SIZE).x;
 		int z80P21T = vec2(Z80_TOP_LEFT).y + vec2(Z80_SIZE).y - 1;
 
+		int romP1L = vec2(ROM_TOP_LEFT).x;
+		int romP1T = vec2(ROM_TOP_LEFT).y + 1;
+		int romP21L = vec2(ROM_TOP_LEFT).x + vec2(MEM_IC_SIZE).x;
+		int romP21T = vec2(ROM_TOP_LEFT).y + vec2(MEM_IC_SIZE).y - 1;
+
+		int ramP1L = vec2(RAM_TOP_LEFT).x;
+		int ramP1T = vec2(RAM_TOP_LEFT).y + 1;
+		int ramP21L = vec2(RAM_TOP_LEFT).x + vec2(MEM_IC_SIZE).x;
+		int ramP21T = vec2(RAM_TOP_LEFT).y + vec2(MEM_IC_SIZE).y - 1;
+
 		int rwBusL = z80P21L + RW_BUS_BUFFER + 1;
 		int rwBusT = z80P21T - RW_BUS_RAISE - 1;
 
@@ -135,56 +154,136 @@ public:
 		int dBusL2 = z80P21L + DATA_BUS_RIGHT_BUFFER + 1;
 		int dBusT2 = dBusT1 - DATA_BUS_RAISE;
 
+		int romBusL = romP1L - 1 - ROM_LEFT_BUFFER;
+		int romBusR = romP21L + ROM_RIGHT_BUFFER;
+
+		int ramBusL = ramP1L - 1 - RAM_LEFT_BUFFER;
+		int ramBusR = ramP21L + RAM_RIGHT_BUFFER;
+
+		int addressBusL = z80P1L - ADDRESS_LEFT_BUFFER - 3;
+		int addressBusT = z80P1T - ADDRESS_TOP_BUFFER - 4;
+		int addressBusR = z80P21L + ADDRESS_RIGHT_BUFFER + 2;
+
 		// clk
-		SVPS(clockWireL, clockWireT, clockWireB - 1, 0); SHPS(clockWireL, clockWireR, clockWireB, 0);
+		SHPS(clockWireL, clockWireR, clockWireB, 0); SVPS(clockWireL, clockWireT, clockWireB - 1, 0);
 		// rd
-		SHPS(z80P21L, rwBusL, z80P21T, 1); SVPS(rwBusL + 1, rwBusT + 1, 32, 1); SHPS(rwBusL + 1, 134, rwBusT + 1, 1); SVPS(96, rwBusT + 1, 48, 1); SHPS(90, 95, 49, 1); SVPS(135, rwBusT + 1, 48, 1); SHPS(128, 134, 49, 1);
+		SHPS(z80P21L, rwBusL, z80P21T, 1); SVPS(rwBusL + 1, rwBusT + 1, z80P21T - 1, 1); SHPS(rwBusL + 1, ramBusR + 5, rwBusT + 1, 1);
+		SVPS(romBusR + 5, rwBusT + 1, romP21T - 8, 1); SHPS(romP21L, romBusR + 4, romP21T - 7, 1);
+		SVPS(ramBusR + 6, rwBusT + 1, ramP21T - 8, 1); SHPS(ramP21L, ramBusR + 5, ramP21T - 7, 1);
 		// wr
-		SHPS(z80P21L, rwBusL - 1, z80P21T - 1, 2); SVPS(rwBusL, rwBusT, 31, 2); SHPS(rwBusL, 129, rwBusT, 2); SVPS(92, rwBusT, 43, 2); SHPS(90, 91, 44, 2); SVPS(130, rwBusT, 43, 2); SHPS(128, 129, 44, 2);
+		SHPS(z80P21L, rwBusL - 1, z80P21T - 1, 2); SVPS(rwBusL, rwBusT, z80P21T - 2, 2); SHPS(rwBusL, ramBusR, rwBusT, 2);
+		SVPS(romBusR + 1, rwBusT, romP1T, 2); SHPS(romP21L, romBusR, romP1T + 1, 2);
+		SVPS(ramBusR + 1, rwBusT, ramP1T, 2); SHPS(ramP21L, ramBusR, ramP1T + 1, 2);
 		// a0
-		SHPS(46, 107, 24, 3); SVPS(70, 24, 51, 3); SHPS(70, 79, 52, 3); SVPS(108, 24, 51, 3); SHPS(108, 117, 52, 3);
+		SHPS(z80P21L, ramBusL - 9, z80P21T - 9, 3);
+		SVPS(romBusL - 8, z80P21T - 9, romP21T - 5, 3); SHPS(romBusL - 8, romP1L - 1, romP21T - 4, 3);
+		SVPS(ramBusL - 8, z80P21T - 9, ramP21T - 5, 3); SHPS(ramBusL - 8, ramP1L - 1, ramP21T - 4, 3);
 		// a1
-		SHPS(46, 108, 23, 4); SVPS(71, 23, 50, 4); SHPS(71, 79, 51, 4); SVPS(109, 23, 50, 4); SHPS(109, 117, 51, 4);
+		SHPS(z80P21L, ramBusL - 8, z80P21T - 10, 4);
+		SVPS(romBusL - 7, z80P21T - 10, romP21T - 6, 4); SHPS(romBusL - 7, romP1L - 1, romP21T - 5, 4);
+		SVPS(ramBusL - 7, z80P21T - 10, ramP21T - 6, 4); SHPS(ramBusL - 7, ramP1L - 1, ramP21T - 5, 4);
 		// a2
-		SHPS(46, 109, 22, 5); SVPS(72, 22, 49, 5); SHPS(72, 79, 50, 5); SVPS(110, 22, 49, 5); SHPS(110, 117, 50, 5);
+		SHPS(z80P21L, ramBusL - 7, z80P21T - 11, 5);
+		SVPS(romBusL - 6, z80P21T - 11, romP21T - 7, 5); SHPS(romBusL - 6, romP1L - 1, romP21T - 6, 5);
+		SVPS(ramBusL - 6, z80P21T - 11, ramP21T - 7, 5); SHPS(ramBusL - 6, ramP1L - 1, ramP21T - 6, 5);
 		// a3
-		SHPS(46, 110, 21, 6); SVPS(73, 21, 48, 6); SHPS(73, 79, 49, 6); SVPS(111, 21, 48, 6); SHPS(111, 117, 49, 6);
+		SHPS(z80P21L, ramBusL - 6, z80P21T - 12, 6);
+		SVPS(romBusL - 5, z80P21T - 12, romP21T - 8, 6); SHPS(romBusL - 5, romP1L - 1, romP21T - 7, 6);
+		SVPS(ramBusL - 5, z80P21T - 12, ramP21T - 8, 6); SHPS(ramBusL - 5, ramP1L - 1, ramP21T - 7, 6);
 		// a4
-		SHPS(46, 111, 20, 7); SVPS(74, 20, 47, 7); SHPS(74, 79, 48, 7); SVPS(112, 20, 47, 7); SHPS(112, 117, 48, 7);
+		SHPS(z80P21L, ramBusL - 5, z80P21T - 13, 7);
+		SVPS(romBusL - 4, z80P21T - 13, romP21T - 9, 7); SHPS(romBusL - 4, romP1L - 1, romP21T - 8, 7);
+		SVPS(ramBusL - 4, z80P21T - 13, ramP21T - 9, 7); SHPS(ramBusL - 4, ramP1L - 1, ramP21T - 8, 7);
 		// a5
-		SHPS(46, 112, 19, 8); SVPS(75, 19, 46, 8); SHPS(75, 79, 47, 8); SVPS(113, 19, 46, 8); SHPS(113, 117, 47, 8);
+		SHPS(z80P21L, ramBusL - 4, z80P21T - 14, 8);
+		SVPS(romBusL - 3, z80P21T - 14, romP21T - 10, 8); SHPS(romBusL - 3, romP1L - 1, romP21T - 9, 8);
+		SVPS(ramBusL - 3, z80P21T - 14, ramP21T - 10, 8); SHPS(ramBusL - 3, ramP1L - 1, ramP21T - 9, 8);
 		// a6
-		SHPS(46, 113, 18, 9); SVPS(76, 18, 45, 9); SHPS(76, 79, 46, 9); SVPS(114, 18, 45, 9); SHPS(114, 117, 46, 9);
+		SHPS(z80P21L, ramBusL - 3, z80P21T - 15, 9);
+		SVPS(romBusL - 2, z80P21T - 15, romP21T - 11, 9); SHPS(romBusL - 2, romP1L - 1, romP21T - 10, 9);
+		SVPS(ramBusL - 2, z80P21T - 15, ramP21T - 11, 9); SHPS(ramBusL - 2, ramP1L - 1, ramP21T - 10, 9);
 		// a7
-		SHPS(46, 114, 17, 10); SVPS(77, 17, 44, 10); SHPS(77, 79, 45, 10); SVPS(115, 17, 44, 10); SHPS(115, 117, 45, 10);
+		SHPS(z80P21L, ramBusL - 2, z80P21T - 16, 10);
+		SVPS(romBusL - 1, z80P21T - 16, romP21T - 12, 10); SHPS(romBusL - 1, romP1L - 1, romP21T - 11, 10);
+		SVPS(ramBusL - 1, z80P21T - 16, ramP21T - 12, 10); SHPS(ramBusL - 1, ramP1L - 1, ramP21T - 11, 10);
 		// a8
-		SHPS(46, 131, 16, 11); SVPS(93, 16, 45, 11); SHPS(90, 92, 46, 11); SVPS(132, 16, 45, 11); SHPS(128, 131, 46, 11);
+		SHPS(z80P21L, ramBusR + 2, z80P1T + 2, 11);
+		SVPS(romBusR + 2, z80P1T + 2, romP1T + 2, 11); SHPS(romP21L, romBusR + 1, romP1T + 3, 11);
+		SVPS(ramBusR + 3, z80P1T + 2, ramP1T + 2, 11); SHPS(ramP21L, ramBusR + 2, ramP1T + 3, 11);
 		// a9
-		SHPS(46, 132, 15, 12); SVPS(94, 15, 46, 12); SHPS(90, 93, 47, 12); SVPS(133, 15, 46, 12); SHPS(128, 132, 47, 12);
+		SHPS(z80P21L, ramBusR + 3, z80P1T + 1, 12);
+		SVPS(romBusR + 3, z80P1T + 1, romP1T + 3, 12); SHPS(romP21L, romBusR + 2, romP1T + 4, 12);
+		SVPS(ramBusR + 4, z80P1T + 1, ramP1T + 3, 12); SHPS(ramP21L, ramBusR + 3, ramP1T + 4, 12);
 		// a10
-		SHPS(46, 135, 14, 13); SVPS(97, 14, 49, 13); SHPS(90, 96, 50, 13); SVPS(136, 14, 49, 13); SHPS(128, 135, 50, 13);
+		SHPS(z80P21L, ramBusR + 6, z80P1T, 13);
+		SVPS(romBusR + 6, z80P1T, romP1T + 6, 13); SHPS(romP21L, romBusR + 5, romP1T + 7, 13);
+		SVPS(ramBusR + 7, z80P1T, ramP1T + 6, 13); SHPS(ramP21L, ramBusR + 6, ramP1T + 7, 13);
 		// a11
-		SHPS(30, 31, 14, 14); SVPS(30, 11, 13, 14); SHPS(30, 47, 11, 14); SVPS(48, 11, 12, 14); SHPS(48, 133, 13, 14); SVPS(95, 13, 47, 14); SHPS(90, 94, 48, 14); SVPS(134, 13, 47, 14); SHPS(128, 133, 48, 14);
+		SHPS(addressBusL + 2, z80P1L - 1, z80P1T, 14); SVPS(addressBusL + 2, addressBusT + 2, z80P1T - 1, 14);
+		SHPS(addressBusL + 2, addressBusR - 2, addressBusT + 2, 14); SVPS(addressBusR - 1, addressBusT + 2, z80P1T - 2, 14);
+		SHPS(addressBusR - 1, ramBusR + 4, z80P1T - 1, 14);
+		SVPS(romBusR + 4, z80P1T - 1, romP1T + 4, 14); SHPS(romP21L, romBusR + 3, romP1T + 5, 14);
+		SVPS(ramBusR + 5, z80P1T - 1, ramP1T + 4, 14); SHPS(ramP21L, ramBusR + 4, ramP1T + 5, 14);
 		// a12
-		SHPS(29, 31, 15, 15); SVPS(29, 10, 14, 15); SHPS(29, 48, 10, 15); SVPS(49, 10, 11, 15); SHPS(49, 115, 12, 15); SVPS(78, 12, 43, 15); SHPS(78, 79, 44, 15); SVPS(116, 12, 43, 15); SHPS(116, 117, 44, 15);
+		SHPS(addressBusL + 1, z80P1L - 1, z80P1T + 1, 15); SVPS(addressBusL + 1, addressBusT + 1, z80P1T, 15);
+		SHPS(addressBusL + 1, addressBusR - 1, addressBusT + 1, 15); SVPS(addressBusR, addressBusT + 1, z80P1T - 3, 15);
+		SHPS(addressBusR, ramBusL - 1, z80P1T - 2, 15);
+		SVPS(romBusL, z80P1T - 2, romP1T, 15); SHPS(romBusL, romP1L - 1, romP1T + 1, 15);
+		SVPS(ramBusL, z80P1T - 2, ramP1T, 15); SHPS(ramBusL, ramP1L - 1, ramP1T + 1, 15);
 		// a13
-		SHPS(28, 31, 16, 16); SVPS(28, 9, 15, 16); SHPS(28, 49, 9, 16); SVPS(50, 9, 10, 16); SHPS(50, 130, 11, 16); SVPS(98, 11, 50, 16); SHPS(90, 97, 51, 16); SVPS(131, 11, 44, 16); SHPS(128, 130, 45, 16);
+		SHPS(addressBusL, z80P1L - 1, z80P1T + 2, 16); SVPS(addressBusL, addressBusT, z80P1T + 1, 16);
+		SHPS(addressBusL, addressBusR, addressBusT, 16); SVPS(addressBusR + 1, addressBusT, z80P1T - 4, 16);
+		SHPS(addressBusR + 1, ramBusR + 1, z80P1T - 3, 16);
+		SVPS(romBusR + 7, z80P1T - 3, romP1T + 7, 16); SHPS(romP21L, romBusR + 6, romP1T + 8, 16);
+		SVPS(ramBusR + 2, z80P1T - 3, ramP1T + 1, 16); SHPS(ramP21L, ramBusR + 1, ramP1T + 2, 16);
 		// d0
-		SHPS(dBusL1 + 0, 31, 27, 17); SVPS(dBusL1 + 0, 27, dBusT1 + 6, 17); SHPS(dBusL1 + 0, dBusL2 + 6, dBusT1 + 7, 17); SVPS(dBusL2 + 7, dBusT2 + 7, dBusT1 + 6, 17); SHPS(dBusL2 + 7, 106, dBusT2 + 7, 17); SVPS(69, dBusT2 + 7, 52, 17); SHPS(69, 79, 53, 17); SVPS(107, dBusT2 + 7, 52, 17); SHPS(107, 117, 53, 17);
+		SHPS(dBusL1 + 0, z80P1L - 1, z80P21T - 6, 17); SVPS(dBusL1 + 0, z80P21T - 6, dBusT1 + 6, 17);
+		SHPS(dBusL1 + 0, dBusL2 + 6, dBusT1 + 7, 17); SVPS(dBusL2 + 7, dBusT2 + 7, dBusT1 + 6, 17);
+		SHPS(dBusL2 + 7, ramBusL - 10, dBusT2 + 7, 17);
+		SVPS(romBusL - 9, dBusT2 + 7, romP21T - 4, 17); SHPS(romBusL - 9, romP1L - 1, romP21T - 3, 17);
+		SVPS(ramBusL - 9, dBusT2 + 7, ramP21T - 4, 17); SHPS(ramBusL - 9, ramP1L - 1, ramP21T - 3, 17);
 		// d1
-		SHPS(dBusL1 + 1, 31, 28, 18); SVPS(dBusL1 + 1, 28, dBusT1 + 5, 18); SHPS(dBusL1 + 1, dBusL2 + 5, dBusT1 + 6, 18); SVPS(dBusL2 + 6, dBusT2 + 6, dBusT1 + 5, 18); SHPS(dBusL2 + 6, 105, dBusT2 + 6, 18); SVPS(68, dBusT2 + 6, 53, 18); SHPS(68, 79, 54, 18); SVPS(106, dBusT2 + 6, 53, 18); SHPS(106, 117, 54, 18);
+		SHPS(dBusL1 + 1, z80P1L - 1, z80P21T - 5, 18); SVPS(dBusL1 + 1, z80P21T - 5, dBusT1 + 5, 18);
+		SHPS(dBusL1 + 1, dBusL2 + 5, dBusT1 + 6, 18); SVPS(dBusL2 + 6, dBusT2 + 6, dBusT1 + 5, 18);
+		SHPS(dBusL2 + 6, ramBusL - 11, dBusT2 + 6, 18);
+		SVPS(romBusL - 10, dBusT2 + 6, romP21T - 3, 18); SHPS(romBusL - 10, romP1L - 1, romP21T - 2, 18);
+		SVPS(ramBusL - 10, dBusT2 + 6, ramP21T - 3, 18); SHPS(ramBusL - 10, ramP1L - 1, ramP21T - 2, 18);
 		// d2
-		SHPS(dBusL1 + 2, 31, 25, 19); SVPS(dBusL1 + 2, 25, dBusT1 + 4, 19); SHPS(dBusL1 + 2, dBusL2 + 4, dBusT1 + 5, 19); SVPS(dBusL2 + 5, dBusT2 + 5, dBusT1 + 4, 19); SHPS(dBusL2 + 5, 104, dBusT2 + 5, 19); SVPS(67, dBusT2 + 5, 54, 19); SHPS(67, 79, 55, 19); SVPS(105, dBusT2 + 5, 54, 19); SHPS(105, 117, 55, 19);
+		SHPS(dBusL1 + 2, z80P1L - 1, z80P21T - 8, 19); SVPS(dBusL1 + 2, z80P21T - 8, dBusT1 + 4, 19);
+		SHPS(dBusL1 + 2, dBusL2 + 4, dBusT1 + 5, 19); SVPS(dBusL2 + 5, dBusT2 + 5, dBusT1 + 4, 19);
+		SHPS(dBusL2 + 5, ramBusL - 12, dBusT2 + 5, 19);
+		SVPS(romBusL - 11, dBusT2 + 5, romP21T - 2, 19); SHPS(romBusL - 11, romP1L - 1, romP21T - 1, 19);
+		SVPS(ramBusL - 11, dBusT2 + 5, ramP21T - 2, 19); SHPS(ramBusL - 11, ramP1L - 1, ramP21T - 1, 19);
 		// d3
-		SHPS(dBusL1 + 3, 31, 21, 20); SVPS(dBusL1 + 3, 21, dBusT1 + 3, 20); SHPS(dBusL1 + 3, dBusL2 + 3, dBusT1 + 4, 20); SVPS(dBusL2 + 4, dBusT2 + 4, dBusT1 + 3, 20); SHPS(dBusL2 + 4, 140, dBusT2 + 4, 20); SVPS(103, dBusT2 + 4, 55, 20); SHPS(90, 102, 56, 20); SVPS(141, dBusT2 + 4, 55, 20); SHPS(128, 140, 56, 20);
+		SHPS(dBusL1 + 3, z80P1L - 1, z80P21T - 12, 20); SVPS(dBusL1 + 3, z80P21T - 12, dBusT1 + 3, 20);
+		SHPS(dBusL1 + 3, dBusL2 + 3, dBusT1 + 4, 20); SVPS(dBusL2 + 4, dBusT2 + 4, dBusT1 + 3, 20);
+		SHPS(dBusL2 + 4, ramBusR + 11, dBusT2 + 4, 20);
+		SVPS(romBusR + 12, dBusT2 + 4, romP21T - 1, 20); SHPS(romP21L, romBusR + 11, romP21T, 20);
+		SVPS(ramBusR + 12, dBusT2 + 4, ramP21T - 1, 20); SHPS(ramP21L, ramBusR + 11, ramP21T, 20);
 		// d4
-		SHPS(dBusL1 + 4, 31, 20, 21); SVPS(dBusL1 + 4, 20, dBusT1 + 2, 21); SHPS(dBusL1 + 4, dBusL2 + 2, dBusT1 + 3, 21); SVPS(dBusL2 + 3, dBusT2 + 3, dBusT1 + 2, 21); SHPS(dBusL2 + 3, 139, dBusT2 + 3, 21); SVPS(102, dBusT2 + 3, 54, 21); SHPS(90, 101, 55, 21); SVPS(140, dBusT2 + 3, 54, 21); SHPS(128, 139, 55, 21);
+		SHPS(dBusL1 + 4, z80P1L - 1, z80P21T - 13, 21); SVPS(dBusL1 + 4, z80P21T - 13, dBusT1 + 2, 21);
+		SHPS(dBusL1 + 4, dBusL2 + 2, dBusT1 + 3, 21); SVPS(dBusL2 + 3, dBusT2 + 3, dBusT1 + 2, 21);
+		SHPS(dBusL2 + 3, ramBusR + 10, dBusT2 + 3, 21);
+		SVPS(romBusR + 11, dBusT2 + 3, romP21T - 2, 21); SHPS(romP21L, romBusR + 10, romP21T - 1, 21);
+		SVPS(ramBusR + 11, dBusT2 + 3, ramP21T - 2, 21); SHPS(ramP21L, ramBusR + 10, ramP21T - 1, 21);
 		// d5
-		SHPS(dBusL1 + 5, 31, 22, 22); SVPS(dBusL1 + 5, 22, dBusT1 + 1, 22); SHPS(dBusL1 + 5, dBusL2 + 1, dBusT1 + 2, 22); SVPS(dBusL2 + 2, dBusT2 + 2, dBusT1 + 1, 22); SHPS(dBusL2 + 2, 138, dBusT2 + 2, 22); SVPS(101, dBusT2 + 2, 53, 22); SHPS(90, 100, 54, 22); SVPS(139, dBusT2 + 2, 53, 22); SHPS(128, 138, 54, 22);
+		SHPS(dBusL1 + 5, z80P1L - 1, z80P21T - 11, 22); SVPS(dBusL1 + 5, z80P21T - 11, dBusT1 + 1, 22);
+		SHPS(dBusL1 + 5, dBusL2 + 1, dBusT1 + 2, 22); SVPS(dBusL2 + 2, dBusT2 + 2, dBusT1 + 1, 22);
+		SHPS(dBusL2 + 2, ramBusR + 9, dBusT2 + 2, 22);
+		SVPS(romBusR + 10, dBusT2 + 2, romP21T - 3, 22); SHPS(romP21L, romBusR + 9, romP21T - 2, 22);
+		SVPS(ramBusR + 10, dBusT2 + 2, ramP21T - 3, 22); SHPS(ramP21L, ramBusR + 9, ramP21T - 2, 22);
 		// d6
-		SHPS(dBusL1 + 6, 31, 23, 23); SVPS(dBusL1 + 6, 23, dBusT1 + 0, 23); SHPS(dBusL1 + 6, dBusL2 + 0, dBusT1 + 1, 23); SVPS(dBusL2 + 1, dBusT2 + 1, dBusT1 + 0, 23); SHPS(dBusL2 + 1, 137, dBusT2 + 1, 23); SVPS(100, dBusT2 + 1, 52, 23); SHPS(90, 99, 53, 23); SVPS(138, dBusT2 + 1, 52, 23); SHPS(128, 137, 53, 23);
+		SHPS(dBusL1 + 6, z80P1L - 1, z80P21T - 10, 23); SVPS(dBusL1 + 6, z80P21T - 10, dBusT1 + 0, 23);
+		SHPS(dBusL1 + 6, dBusL2 + 0, dBusT1 + 1, 23); SVPS(dBusL2 + 1, dBusT2 + 1, dBusT1 + 0, 23);
+		SHPS(dBusL2 + 1, ramBusR + 8, dBusT2 + 1, 23);
+		SVPS(romBusR + 9, dBusT2 + 1, romP21T - 4, 23); SHPS(romP21L, romBusR + 8, romP21T - 3, 23);
+		SVPS(ramBusR + 9, dBusT2 + 1, ramP21T - 4, 23); SHPS(ramP21L, ramBusR + 8, ramP21T - 3, 23);
 		// d7
-		SHPS(dBusL1 + 7, 31, 26, 24); SVPS(dBusL1 + 7, 26, dBusT1 - 1, 24); SHPS(dBusL1 + 7, dBusL2 - 1, dBusT1 + 0, 24); SVPS(dBusL2 + 0, dBusT2 + 0, dBusT1 - 1, 24); SHPS(dBusL2 + 0, 136, dBusT2 + 0, 24); SVPS(99, dBusT2 + 0, 51, 24); SHPS(90, 98, 52, 24); SVPS(137, dBusT2 + 0, 51, 24); SHPS(128, 136, 52, 24);
+		SHPS(dBusL1 + 7, z80P1L - 1, z80P21T - 7, 24); SVPS(dBusL1 + 7, z80P21T - 7, dBusT1 - 1, 24);
+		SHPS(dBusL1 + 7, dBusL2 - 1, dBusT1 + 0, 24); SVPS(dBusL2 + 0, dBusT2 + 0, dBusT1 - 1, 24);
+		SHPS(dBusL2 + 0, ramBusR + 7, dBusT2 + 0, 24);
+		SVPS(romBusR + 8, dBusT2 + 0, romP21T - 5, 24); SHPS(romP21L, romBusR + 7, romP21T - 4, 24);
+		SVPS(ramBusR + 8, dBusT2 + 0, ramP21T - 5, 24); SHPS(ramP21L, ramBusR + 7, ramP21T - 4, 24);
 	}
 
 	void renderString(Sprite font, vec2 pos, string text, RenderProgram* rp, RenderBuffer* rb) {
