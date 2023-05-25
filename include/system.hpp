@@ -95,6 +95,8 @@ public:
     //    25 = memory request
     //    26 = refresh
     //    27 = machine cycle 1
+    //    28 = vcc
+    //    29 = ground
 
     int oldClock;
 
@@ -113,6 +115,7 @@ public:
         memset(netValues, 3, 27 * sizeof(uint8_t));
         memset(&(netValues[1]), 2, 2 * sizeof(uint8_t));
         memset(&(netValues[25]), 2, 3 * sizeof(uint8_t));
+        memset(&(netValues[28]), 1, 2 * sizeof(uint8_t));
 
         oldClock = netValues[0];
 

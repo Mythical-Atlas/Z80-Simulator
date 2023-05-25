@@ -9,6 +9,11 @@
 
 #define VERTS_SIZE 16
 
+#define GRAPHS_X 1
+#define GRAPHS_Y 47
+#define INFO_X   111
+#define INFO_Y   1
+
 using namespace std;
 
 void MapState::load()  {
@@ -32,7 +37,6 @@ void MapState::load()  {
 }
 void MapState::init(Window* window, Game* game)  {
     cam.init((int)window->getScreenSize().x, (int)window->getScreenSize().y);
-    cam.pos += vec2(0, 12 * 8);
 
     mixer.init();
     memset(&controller, 0, sizeof(Controller)); // could be done with a union in Controller
@@ -153,33 +157,33 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
     renderCircuit();
 
-    /*renderString(fontSprite, vec2(1, 40) * vec2(8, 12), "Address Bus: 0x" + circuit.hex16(circuit.getAddressBus()), &rp, &rb);
-    renderString(fontSprite, vec2(1, 41) * vec2(8, 12), "Data Bus: 0x" + circuit.hex8(circuit.getDataBus()), &rp, &rb);
-    renderString(fontSprite, vec2(1, 43) * vec2(8, 12), "PC: 0x" + circuit.hex16(circuit.pc), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X, INFO_Y) * vec2(8, 12), "Address Bus: 0x" + circuit.hex16(circuit.getAddressBus()), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X, INFO_Y + 1) * vec2(8, 12), "Data Bus: 0x" + circuit.hex8(circuit.getDataBus()), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X, INFO_Y + 3) * vec2(8, 12), "PC: 0x" + circuit.hex16(circuit.pc), &rp, &rb);
 
-    if(circuit.currentTCycleHalf == 0) {renderString(fontSprite, vec2(10, 45) * vec2(8, 12), "First Half of T Cycle (Clock Just Rose)", &rp, &rb);}
-    else if(circuit.currentTCycleHalf == 1) {renderString(fontSprite, vec2(10, 45) * vec2(8, 12), "Second Half of T Cycle (Clock Just Fell)", &rp, &rb);}
-    else {renderString(fontSprite, vec2(10, 45) * vec2(8, 12), "Not in T Cycle Yet (Clock Hasn't Changed)", &rp, &rb);}
-    renderString(fontSprite, vec2(10, 46) * vec2(8, 12), "Current T Cycle: " + to_string(circuit.currentTCycle), &rp, &rb);
-    renderString(fontSprite, vec2(10, 47) * vec2(8, 12), "Current M Cycle: " + to_string(circuit.currentMCycle), &rp, &rb);
-    if(circuit.mType == 0) {renderString(fontSprite, vec2(10, 48) * vec2(8, 12), "Operation: Instruction Fetch (M1)", &rp, &rb);}
-    if(circuit.mType == 1) {renderString(fontSprite, vec2(10, 48) * vec2(8, 12), "Operation: Memory Read", &rp, &rb);}
-    if(circuit.mType == 2) {renderString(fontSprite, vec2(10, 48) * vec2(8, 12), "Operation: Memory Write", &rp, &rb);}
+    if(circuit.currentTCycleHalf == 0) {renderString(fontSprite, vec2(INFO_X, INFO_Y + 5) * vec2(8, 12), "First Half of T Cycle (Clock Just Rose)", &rp, &rb);}
+    else if(circuit.currentTCycleHalf == 1) {renderString(fontSprite, vec2(INFO_X, INFO_Y + 5) * vec2(8, 12), "Second Half of T Cycle (Clock Just Fell)", &rp, &rb);}
+    else {renderString(fontSprite, vec2(INFO_X, INFO_Y + 5) * vec2(8, 12), "Not in T Cycle Yet (Clock Hasn't Changed)", &rp, &rb);}
+    renderString(fontSprite, vec2(INFO_X, INFO_Y + 6) * vec2(8, 12), "Current T Cycle: " + to_string(circuit.currentTCycle), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X, INFO_Y + 7) * vec2(8, 12), "Current M Cycle: " + to_string(circuit.currentMCycle), &rp, &rb);
+    if(circuit.mType == 0) {renderString(fontSprite, vec2(INFO_X, INFO_Y + 8) * vec2(8, 12), "Operation: Instruction Fetch (M1)", &rp, &rb);}
+    if(circuit.mType == 1) {renderString(fontSprite, vec2(INFO_X, INFO_Y + 8) * vec2(8, 12), "Operation: Memory Read", &rp, &rb);}
+    if(circuit.mType == 2) {renderString(fontSprite, vec2(INFO_X, INFO_Y + 8) * vec2(8, 12), "Operation: Memory Write", &rp, &rb);}
 
     if(circuit.currentInstruction != -1) {
-        renderString(fontSprite, vec2(10, 50) * vec2(8, 12), "Instruction: " + decodeInstruction(circuit.currentInstruction), &rp, &rb);
-        renderString(fontSprite, vec2(10, 51) * vec2(8, 12), "Op Code: 0x" + circuit.hex8(circuit.currentInstruction), &rp, &rb);
-        renderString(fontSprite, vec2(10, 52) * vec2(8, 12), "M Cycles " + decodeMCycles(circuit.currentInstruction), &rp, &rb);
-        renderString(fontSprite, vec2(10, 53) * vec2(8, 12), "T Cycles " + decodeTCycles(circuit.currentInstruction), &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 10) * vec2(8, 12), "Instruction: " + decodeInstruction(circuit.currentInstruction), &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 11) * vec2(8, 12), "Op Code: 0x" + circuit.hex8(circuit.currentInstruction), &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 12) * vec2(8, 12), "M Cycles " + decodeMCycles(circuit.currentInstruction), &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 13) * vec2(8, 12), "T Cycles " + decodeTCycles(circuit.currentInstruction), &rp, &rb);
     }
     else {
-        renderString(fontSprite, vec2(10, 50) * vec2(8, 12), "Instruction: Unknown", &rp, &rb);
-        renderString(fontSprite, vec2(10, 51) * vec2(8, 12), "Op Code: 0x??", &rp, &rb);
-        renderString(fontSprite, vec2(10, 52) * vec2(8, 12), "M Cycles (?): Unknown", &rp, &rb);
-        renderString(fontSprite, vec2(10, 53) * vec2(8, 12), "T Cycles (?): Unknown", &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 10) * vec2(8, 12), "Instruction: Unknown", &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 11) * vec2(8, 12), "Op Code: 0x??", &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 12) * vec2(8, 12), "M Cycles (?): Unknown", &rp, &rb);
+        renderString(fontSprite, vec2(INFO_X, INFO_Y + 13) * vec2(8, 12), "T Cycles (?): Unknown", &rp, &rb);
     }
 
-    renderString(fontSprite, vec2(10, 60) * vec2(8, 12),
+    renderString(fontSprite, vec2(GRAPHS_X, GRAPHS_Y + 1) * vec2(8, 12),
         "   /CLK\n\n\n\n"
         "ADDRESS\n\n\n\n"
         "   MREQ\n\n\n\n"
@@ -190,16 +194,16 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
         "   RFSH\n\n\n\n"
     , &rp, &rb);
 
-    renderHistogram(wireSprite, vec2(20, 60) * vec2(8, 12), clkHis, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 64) * vec2(8, 12), addHis0, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 64) * vec2(8, 12), addHis1, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 68) * vec2(8, 12), mreqHis, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 72) * vec2(8, 12), rdHis, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 76) * vec2(8, 12), wrHis, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 80) * vec2(8, 12), m1His, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 84) * vec2(8, 12), datHis0, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 84) * vec2(8, 12), datHis1, &rp, &rb);
-    renderHistogram(wireSprite, vec2(20, 88) * vec2(8, 12), rfshHis, &rp, &rb);*/
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 0) * vec2(8, 12), clkHis, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 1) * vec2(8, 12), addHis0, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 1) * vec2(8, 12), addHis1, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 2) * vec2(8, 12), mreqHis, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 3) * vec2(8, 12), rdHis, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 4) * vec2(8, 12), wrHis, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 5) * vec2(8, 12), m1His, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 6) * vec2(8, 12), datHis0, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 6) * vec2(8, 12), datHis1, &rp, &rb);
+    renderHistogram(wireSprite, vec2(GRAPHS_X + 8, GRAPHS_Y + 1 + 4 * 7) * vec2(8, 12), rfshHis, &rp, &rb);
 }
 void MapState::unload() {
 	mixer.unload();
