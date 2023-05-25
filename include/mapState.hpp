@@ -63,6 +63,8 @@
 #define SVP(x, y, i) wt.setVPointer(x, y, &circuit.netValues[i])
 #define SVPS(x, y1, y2, i) for(int y = y1; y <= y2; y++) {SVP(x, y, i);}
 
+#define INDICATE(x, y, i) wireSprite.pos = vec2(x, y) * vec2(8, 12); if(circuit.netValues[i] == 2) {wireSprite.render(&rp, &rb, 0, 1);} if(circuit.netValues[i] == 3) {wireSprite.render(&rp, &rb, 0, 2);}
+
 using namespace chrono;
 
 class MapState: public State {
@@ -165,125 +167,125 @@ public:
 		int addressBusR = z80P21L + ADDRESS_RIGHT_BUFFER + 2;
 
 		// clk
-		SHPS(clockWireL, clockWireR, clockWireB, 0); SVPS(clockWireL, clockWireT, clockWireB - 1, 0);
+		//SHPS(clockWireL, clockWireR, clockWireB, 0); SVPS(clockWireL, clockWireT, clockWireB - 1, 0);
 		// rd
-		SHPS(z80P21L, rwBusL, z80P21T, 1); SVPS(rwBusL + 1, rwBusT + 1, z80P21T - 1, 1); SHPS(rwBusL + 1, ramBusR + 5, rwBusT + 1, 1);
-		SVPS(romBusR + 5, rwBusT + 1, romP21T - 8, 1); SHPS(romP21L, romBusR + 4, romP21T - 7, 1);
-		SVPS(ramBusR + 6, rwBusT + 1, ramP21T - 8, 1); SHPS(ramP21L, ramBusR + 5, ramP21T - 7, 1);
+		SHPS(z80P21L + 1, rwBusL, z80P21T, 1); SVPS(rwBusL + 1, rwBusT + 1, z80P21T - 1, 1); SHPS(rwBusL + 1, ramBusR + 5, rwBusT + 1, 1);
+		SVPS(romBusR + 5, rwBusT + 1, romP21T - 8, 1); SHPS(romP21L + 1, romBusR + 4, romP21T - 7, 1);
+		SVPS(ramBusR + 6, rwBusT + 1, ramP21T - 8, 1); SHPS(ramP21L + 1, ramBusR + 5, ramP21T - 7, 1);
 		// wr
-		SHPS(z80P21L, rwBusL - 1, z80P21T - 1, 2); SVPS(rwBusL, rwBusT, z80P21T - 2, 2); SHPS(rwBusL, ramBusR, rwBusT, 2);
-		SVPS(romBusR + 1, rwBusT, romP1T, 2); SHPS(romP21L, romBusR, romP1T + 1, 2);
-		SVPS(ramBusR + 1, rwBusT, ramP1T, 2); SHPS(ramP21L, ramBusR, ramP1T + 1, 2);
+		SHPS(z80P21L + 1, rwBusL - 1, z80P21T - 1, 2); SVPS(rwBusL, rwBusT, z80P21T - 2, 2); SHPS(rwBusL, ramBusR, rwBusT, 2);
+		SVPS(romBusR + 1, rwBusT, romP1T, 2); SHPS(romP21L + 1, romBusR, romP1T + 1, 2);
+		SVPS(ramBusR + 1, rwBusT, ramP1T, 2); SHPS(ramP21L + 1, ramBusR, ramP1T + 1, 2);
 		// a0
-		SHPS(z80P21L, ramBusL - 9, z80P21T - 9, 3);
-		SVPS(romBusL - 8, z80P21T - 9, romP21T - 5, 3); SHPS(romBusL - 8, romP1L - 1, romP21T - 4, 3);
-		SVPS(ramBusL - 8, z80P21T - 9, ramP21T - 5, 3); SHPS(ramBusL - 8, ramP1L - 1, ramP21T - 4, 3);
+		SHPS(z80P21L + 1, ramBusL - 9, z80P21T - 9, 3);
+		SVPS(romBusL - 8, z80P21T - 9, romP21T - 5, 3); SHPS(romBusL - 8, romP1L - 2, romP21T - 4, 3);
+		SVPS(ramBusL - 8, z80P21T - 9, ramP21T - 5, 3); SHPS(ramBusL - 8, ramP1L - 2, ramP21T - 4, 3);
 		// a1
-		SHPS(z80P21L, ramBusL - 8, z80P21T - 10, 4);
-		SVPS(romBusL - 7, z80P21T - 10, romP21T - 6, 4); SHPS(romBusL - 7, romP1L - 1, romP21T - 5, 4);
-		SVPS(ramBusL - 7, z80P21T - 10, ramP21T - 6, 4); SHPS(ramBusL - 7, ramP1L - 1, ramP21T - 5, 4);
+		SHPS(z80P21L + 1, ramBusL - 8, z80P21T - 10, 4);
+		SVPS(romBusL - 7, z80P21T - 10, romP21T - 6, 4); SHPS(romBusL - 7, romP1L - 2, romP21T - 5, 4);
+		SVPS(ramBusL - 7, z80P21T - 10, ramP21T - 6, 4); SHPS(ramBusL - 7, ramP1L - 2, ramP21T - 5, 4);
 		// a2
-		SHPS(z80P21L, ramBusL - 7, z80P21T - 11, 5);
-		SVPS(romBusL - 6, z80P21T - 11, romP21T - 7, 5); SHPS(romBusL - 6, romP1L - 1, romP21T - 6, 5);
-		SVPS(ramBusL - 6, z80P21T - 11, ramP21T - 7, 5); SHPS(ramBusL - 6, ramP1L - 1, ramP21T - 6, 5);
+		SHPS(z80P21L + 1, ramBusL - 7, z80P21T - 11, 5);
+		SVPS(romBusL - 6, z80P21T - 11, romP21T - 7, 5); SHPS(romBusL - 6, romP1L - 2, romP21T - 6, 5);
+		SVPS(ramBusL - 6, z80P21T - 11, ramP21T - 7, 5); SHPS(ramBusL - 6, ramP1L - 2, ramP21T - 6, 5);
 		// a3
-		SHPS(z80P21L, ramBusL - 6, z80P21T - 12, 6);
-		SVPS(romBusL - 5, z80P21T - 12, romP21T - 8, 6); SHPS(romBusL - 5, romP1L - 1, romP21T - 7, 6);
-		SVPS(ramBusL - 5, z80P21T - 12, ramP21T - 8, 6); SHPS(ramBusL - 5, ramP1L - 1, ramP21T - 7, 6);
+		SHPS(z80P21L + 1, ramBusL - 6, z80P21T - 12, 6);
+		SVPS(romBusL - 5, z80P21T - 12, romP21T - 8, 6); SHPS(romBusL - 5, romP1L - 2, romP21T - 7, 6);
+		SVPS(ramBusL - 5, z80P21T - 12, ramP21T - 8, 6); SHPS(ramBusL - 5, ramP1L - 2, ramP21T - 7, 6);
 		// a4
-		SHPS(z80P21L, ramBusL - 5, z80P21T - 13, 7);
-		SVPS(romBusL - 4, z80P21T - 13, romP21T - 9, 7); SHPS(romBusL - 4, romP1L - 1, romP21T - 8, 7);
-		SVPS(ramBusL - 4, z80P21T - 13, ramP21T - 9, 7); SHPS(ramBusL - 4, ramP1L - 1, ramP21T - 8, 7);
+		SHPS(z80P21L + 1, ramBusL - 5, z80P21T - 13, 7);
+		SVPS(romBusL - 4, z80P21T - 13, romP21T - 9, 7); SHPS(romBusL - 4, romP1L - 2, romP21T - 8, 7);
+		SVPS(ramBusL - 4, z80P21T - 13, ramP21T - 9, 7); SHPS(ramBusL - 4, ramP1L - 2, ramP21T - 8, 7);
 		// a5
-		SHPS(z80P21L, ramBusL - 4, z80P21T - 14, 8);
-		SVPS(romBusL - 3, z80P21T - 14, romP21T - 10, 8); SHPS(romBusL - 3, romP1L - 1, romP21T - 9, 8);
-		SVPS(ramBusL - 3, z80P21T - 14, ramP21T - 10, 8); SHPS(ramBusL - 3, ramP1L - 1, ramP21T - 9, 8);
+		SHPS(z80P21L + 1, ramBusL - 4, z80P21T - 14, 8);
+		SVPS(romBusL - 3, z80P21T - 14, romP21T - 10, 8); SHPS(romBusL - 3, romP1L - 2, romP21T - 9, 8);
+		SVPS(ramBusL - 3, z80P21T - 14, ramP21T - 10, 8); SHPS(ramBusL - 3, ramP1L - 2, ramP21T - 9, 8);
 		// a6
-		SHPS(z80P21L, ramBusL - 3, z80P21T - 15, 9);
-		SVPS(romBusL - 2, z80P21T - 15, romP21T - 11, 9); SHPS(romBusL - 2, romP1L - 1, romP21T - 10, 9);
-		SVPS(ramBusL - 2, z80P21T - 15, ramP21T - 11, 9); SHPS(ramBusL - 2, ramP1L - 1, ramP21T - 10, 9);
+		SHPS(z80P21L + 1, ramBusL - 3, z80P21T - 15, 9);
+		SVPS(romBusL - 2, z80P21T - 15, romP21T - 11, 9); SHPS(romBusL - 2, romP1L - 2, romP21T - 10, 9);
+		SVPS(ramBusL - 2, z80P21T - 15, ramP21T - 11, 9); SHPS(ramBusL - 2, ramP1L - 2, ramP21T - 10, 9);
 		// a7
-		SHPS(z80P21L, ramBusL - 2, z80P21T - 16, 10);
-		SVPS(romBusL - 1, z80P21T - 16, romP21T - 12, 10); SHPS(romBusL - 1, romP1L - 1, romP21T - 11, 10);
-		SVPS(ramBusL - 1, z80P21T - 16, ramP21T - 12, 10); SHPS(ramBusL - 1, ramP1L - 1, ramP21T - 11, 10);
+		SHPS(z80P21L + 1, ramBusL - 2, z80P21T - 16, 10);
+		SVPS(romBusL - 1, z80P21T - 16, romP21T - 12, 10); SHPS(romBusL - 1, romP1L - 2, romP21T - 11, 10);
+		SVPS(ramBusL - 1, z80P21T - 16, ramP21T - 12, 10); SHPS(ramBusL - 1, ramP1L - 2, ramP21T - 11, 10);
 		// a8
-		SHPS(z80P21L, ramBusR + 2, z80P1T + 2, 11);
-		SVPS(romBusR + 2, z80P1T + 2, romP1T + 2, 11); SHPS(romP21L, romBusR + 1, romP1T + 3, 11);
-		SVPS(ramBusR + 3, z80P1T + 2, ramP1T + 2, 11); SHPS(ramP21L, ramBusR + 2, ramP1T + 3, 11);
+		SHPS(z80P21L + 1, ramBusR + 2, z80P1T + 2, 11);
+		SVPS(romBusR + 2, z80P1T + 2, romP1T + 2, 11); SHPS(romP21L + 1, romBusR + 1, romP1T + 3, 11);
+		SVPS(ramBusR + 3, z80P1T + 2, ramP1T + 2, 11); SHPS(ramP21L + 1, ramBusR + 2, ramP1T + 3, 11);
 		// a9
-		SHPS(z80P21L, ramBusR + 3, z80P1T + 1, 12);
-		SVPS(romBusR + 3, z80P1T + 1, romP1T + 3, 12); SHPS(romP21L, romBusR + 2, romP1T + 4, 12);
-		SVPS(ramBusR + 4, z80P1T + 1, ramP1T + 3, 12); SHPS(ramP21L, ramBusR + 3, ramP1T + 4, 12);
+		SHPS(z80P21L + 1, ramBusR + 3, z80P1T + 1, 12);
+		SVPS(romBusR + 3, z80P1T + 1, romP1T + 3, 12); SHPS(romP21L + 1, romBusR + 2, romP1T + 4, 12);
+		SVPS(ramBusR + 4, z80P1T + 1, ramP1T + 3, 12); SHPS(ramP21L + 1, ramBusR + 3, ramP1T + 4, 12);
 		// a10
-		SHPS(z80P21L, ramBusR + 6, z80P1T, 13);
-		SVPS(romBusR + 6, z80P1T, romP1T + 6, 13); SHPS(romP21L, romBusR + 5, romP1T + 7, 13);
-		SVPS(ramBusR + 7, z80P1T, ramP1T + 6, 13); SHPS(ramP21L, ramBusR + 6, ramP1T + 7, 13);
+		SHPS(z80P21L + 1, ramBusR + 6, z80P1T, 13);
+		SVPS(romBusR + 6, z80P1T, romP1T + 6, 13); SHPS(romP21L + 1, romBusR + 5, romP1T + 7, 13);
+		SVPS(ramBusR + 7, z80P1T, ramP1T + 6, 13); SHPS(ramP21L + 1, ramBusR + 6, ramP1T + 7, 13);
 		// a11
-		SHPS(addressBusL + 2, z80P1L - 1, z80P1T, 14); SVPS(addressBusL + 2, addressBusT + 2, z80P1T - 1, 14);
+		SHPS(addressBusL + 2, z80P1L - 2, z80P1T, 14); SVPS(addressBusL + 2, addressBusT + 2, z80P1T - 1, 14);
 		SHPS(addressBusL + 2, addressBusR - 2, addressBusT + 2, 14); SVPS(addressBusR - 1, addressBusT + 2, z80P1T - 2, 14);
 		SHPS(addressBusR - 1, ramBusR + 4, z80P1T - 1, 14);
-		SVPS(romBusR + 4, z80P1T - 1, romP1T + 4, 14); SHPS(romP21L, romBusR + 3, romP1T + 5, 14);
-		SVPS(ramBusR + 5, z80P1T - 1, ramP1T + 4, 14); SHPS(ramP21L, ramBusR + 4, ramP1T + 5, 14);
+		SVPS(romBusR + 4, z80P1T - 1, romP1T + 4, 14); SHPS(romP21L + 1, romBusR + 3, romP1T + 5, 14);
+		SVPS(ramBusR + 5, z80P1T - 1, ramP1T + 4, 14); SHPS(ramP21L + 1, ramBusR + 4, ramP1T + 5, 14);
 		// a12
-		SHPS(addressBusL + 1, z80P1L - 1, z80P1T + 1, 15); SVPS(addressBusL + 1, addressBusT + 1, z80P1T, 15);
+		SHPS(addressBusL + 1, z80P1L - 2, z80P1T + 1, 15); SVPS(addressBusL + 1, addressBusT + 1, z80P1T, 15);
 		SHPS(addressBusL + 1, addressBusR - 1, addressBusT + 1, 15); SVPS(addressBusR, addressBusT + 1, z80P1T - 3, 15);
 		SHPS(addressBusR, ramBusL - 1, z80P1T - 2, 15);
-		SVPS(romBusL, z80P1T - 2, romP1T, 15); SHPS(romBusL, romP1L - 1, romP1T + 1, 15);
-		SVPS(ramBusL, z80P1T - 2, ramP1T, 15); SHPS(ramBusL, ramP1L - 1, ramP1T + 1, 15);
+		SVPS(romBusL, z80P1T - 2, romP1T, 15); SHPS(romBusL, romP1L - 2, romP1T + 1, 15);
+		SVPS(ramBusL, z80P1T - 2, ramP1T, 15); SHPS(ramBusL, ramP1L - 2, ramP1T + 1, 15);
 		// a13
-		SHPS(addressBusL, z80P1L - 1, z80P1T + 2, 16); SVPS(addressBusL, addressBusT, z80P1T + 1, 16);
+		SHPS(addressBusL, z80P1L - 2, z80P1T + 2, 16); SVPS(addressBusL, addressBusT, z80P1T + 1, 16);
 		SHPS(addressBusL, addressBusR, addressBusT, 16); SVPS(addressBusR + 1, addressBusT, z80P1T - 4, 16);
 		SHPS(addressBusR + 1, ramBusR + 1, z80P1T - 3, 16);
-		SVPS(romBusR + 7, z80P1T - 3, romP1T + 7, 16); SHPS(romP21L, romBusR + 6, romP1T + 8, 16);
-		SVPS(ramBusR + 2, z80P1T - 3, ramP1T + 1, 16); SHPS(ramP21L, ramBusR + 1, ramP1T + 2, 16);
+		SVPS(romBusR + 7, z80P1T - 3, romP1T + 7, 16); SHPS(romP21L + 1, romBusR + 6, romP1T + 8, 16);
+		SVPS(ramBusR + 2, z80P1T - 3, ramP1T + 1, 16); SHPS(ramP21L + 1, ramBusR + 1, ramP1T + 2, 16);
 		// d0
-		SHPS(dBusL1 + 0, z80P1L - 1, z80P21T - 6, 17); SVPS(dBusL1 + 0, z80P21T - 6, dBusT1 + 6, 17);
+		SHPS(dBusL1 + 0, z80P1L - 2, z80P21T - 6, 17); SVPS(dBusL1 + 0, z80P21T - 6, dBusT1 + 6, 17);
 		SHPS(dBusL1 + 0, dBusL2 + 6, dBusT1 + 7, 17); SVPS(dBusL2 + 7, dBusT2 + 7, dBusT1 + 6, 17);
 		SHPS(dBusL2 + 7, ramBusL - 10, dBusT2 + 7, 17);
-		SVPS(romBusL - 9, dBusT2 + 7, romP21T - 4, 17); SHPS(romBusL - 9, romP1L - 1, romP21T - 3, 17);
-		SVPS(ramBusL - 9, dBusT2 + 7, ramP21T - 4, 17); SHPS(ramBusL - 9, ramP1L - 1, ramP21T - 3, 17);
+		SVPS(romBusL - 9, dBusT2 + 7, romP21T - 4, 17); SHPS(romBusL - 9, romP1L - 2, romP21T - 3, 17);
+		SVPS(ramBusL - 9, dBusT2 + 7, ramP21T - 4, 17); SHPS(ramBusL - 9, ramP1L - 2, ramP21T - 3, 17);
 		// d1
-		SHPS(dBusL1 + 1, z80P1L - 1, z80P21T - 5, 18); SVPS(dBusL1 + 1, z80P21T - 5, dBusT1 + 5, 18);
+		SHPS(dBusL1 + 1, z80P1L - 2, z80P21T - 5, 18); SVPS(dBusL1 + 1, z80P21T - 5, dBusT1 + 5, 18);
 		SHPS(dBusL1 + 1, dBusL2 + 5, dBusT1 + 6, 18); SVPS(dBusL2 + 6, dBusT2 + 6, dBusT1 + 5, 18);
 		SHPS(dBusL2 + 6, ramBusL - 11, dBusT2 + 6, 18);
-		SVPS(romBusL - 10, dBusT2 + 6, romP21T - 3, 18); SHPS(romBusL - 10, romP1L - 1, romP21T - 2, 18);
-		SVPS(ramBusL - 10, dBusT2 + 6, ramP21T - 3, 18); SHPS(ramBusL - 10, ramP1L - 1, ramP21T - 2, 18);
+		SVPS(romBusL - 10, dBusT2 + 6, romP21T - 3, 18); SHPS(romBusL - 10, romP1L - 2, romP21T - 2, 18);
+		SVPS(ramBusL - 10, dBusT2 + 6, ramP21T - 3, 18); SHPS(ramBusL - 10, ramP1L - 2, ramP21T - 2, 18);
 		// d2
-		SHPS(dBusL1 + 2, z80P1L - 1, z80P21T - 8, 19); SVPS(dBusL1 + 2, z80P21T - 8, dBusT1 + 4, 19);
+		SHPS(dBusL1 + 2, z80P1L - 2, z80P21T - 8, 19); SVPS(dBusL1 + 2, z80P21T - 8, dBusT1 + 4, 19);
 		SHPS(dBusL1 + 2, dBusL2 + 4, dBusT1 + 5, 19); SVPS(dBusL2 + 5, dBusT2 + 5, dBusT1 + 4, 19);
 		SHPS(dBusL2 + 5, ramBusL - 12, dBusT2 + 5, 19);
-		SVPS(romBusL - 11, dBusT2 + 5, romP21T - 2, 19); SHPS(romBusL - 11, romP1L - 1, romP21T - 1, 19);
-		SVPS(ramBusL - 11, dBusT2 + 5, ramP21T - 2, 19); SHPS(ramBusL - 11, ramP1L - 1, ramP21T - 1, 19);
+		SVPS(romBusL - 11, dBusT2 + 5, romP21T - 2, 19); SHPS(romBusL - 11, romP1L - 2, romP21T - 1, 19);
+		SVPS(ramBusL - 11, dBusT2 + 5, ramP21T - 2, 19); SHPS(ramBusL - 11, ramP1L - 2, ramP21T - 1, 19);
 		// d3
-		SHPS(dBusL1 + 3, z80P1L - 1, z80P21T - 12, 20); SVPS(dBusL1 + 3, z80P21T - 12, dBusT1 + 3, 20);
+		SHPS(dBusL1 + 3, z80P1L - 2, z80P21T - 12, 20); SVPS(dBusL1 + 3, z80P21T - 12, dBusT1 + 3, 20);
 		SHPS(dBusL1 + 3, dBusL2 + 3, dBusT1 + 4, 20); SVPS(dBusL2 + 4, dBusT2 + 4, dBusT1 + 3, 20);
 		SHPS(dBusL2 + 4, ramBusR + 11, dBusT2 + 4, 20);
-		SVPS(romBusR + 12, dBusT2 + 4, romP21T - 1, 20); SHPS(romP21L, romBusR + 11, romP21T, 20);
-		SVPS(ramBusR + 12, dBusT2 + 4, ramP21T - 1, 20); SHPS(ramP21L, ramBusR + 11, ramP21T, 20);
+		SVPS(romBusR + 12, dBusT2 + 4, romP21T - 1, 20); SHPS(romP21L + 1, romBusR + 11, romP21T, 20);
+		SVPS(ramBusR + 12, dBusT2 + 4, ramP21T - 1, 20); SHPS(ramP21L + 1, ramBusR + 11, ramP21T, 20);
 		// d4
-		SHPS(dBusL1 + 4, z80P1L - 1, z80P21T - 13, 21); SVPS(dBusL1 + 4, z80P21T - 13, dBusT1 + 2, 21);
+		SHPS(dBusL1 + 4, z80P1L - 2, z80P21T - 13, 21); SVPS(dBusL1 + 4, z80P21T - 13, dBusT1 + 2, 21);
 		SHPS(dBusL1 + 4, dBusL2 + 2, dBusT1 + 3, 21); SVPS(dBusL2 + 3, dBusT2 + 3, dBusT1 + 2, 21);
 		SHPS(dBusL2 + 3, ramBusR + 10, dBusT2 + 3, 21);
-		SVPS(romBusR + 11, dBusT2 + 3, romP21T - 2, 21); SHPS(romP21L, romBusR + 10, romP21T - 1, 21);
-		SVPS(ramBusR + 11, dBusT2 + 3, ramP21T - 2, 21); SHPS(ramP21L, ramBusR + 10, ramP21T - 1, 21);
+		SVPS(romBusR + 11, dBusT2 + 3, romP21T - 2, 21); SHPS(romP21L + 1, romBusR + 10, romP21T - 1, 21);
+		SVPS(ramBusR + 11, dBusT2 + 3, ramP21T - 2, 21); SHPS(ramP21L + 1, ramBusR + 10, ramP21T - 1, 21);
 		// d5
-		SHPS(dBusL1 + 5, z80P1L - 1, z80P21T - 11, 22); SVPS(dBusL1 + 5, z80P21T - 11, dBusT1 + 1, 22);
+		SHPS(dBusL1 + 5, z80P1L - 2, z80P21T - 11, 22); SVPS(dBusL1 + 5, z80P21T - 11, dBusT1 + 1, 22);
 		SHPS(dBusL1 + 5, dBusL2 + 1, dBusT1 + 2, 22); SVPS(dBusL2 + 2, dBusT2 + 2, dBusT1 + 1, 22);
 		SHPS(dBusL2 + 2, ramBusR + 9, dBusT2 + 2, 22);
-		SVPS(romBusR + 10, dBusT2 + 2, romP21T - 3, 22); SHPS(romP21L, romBusR + 9, romP21T - 2, 22);
-		SVPS(ramBusR + 10, dBusT2 + 2, ramP21T - 3, 22); SHPS(ramP21L, ramBusR + 9, ramP21T - 2, 22);
+		SVPS(romBusR + 10, dBusT2 + 2, romP21T - 3, 22); SHPS(romP21L + 1, romBusR + 9, romP21T - 2, 22);
+		SVPS(ramBusR + 10, dBusT2 + 2, ramP21T - 3, 22); SHPS(ramP21L + 1, ramBusR + 9, ramP21T - 2, 22);
 		// d6
-		SHPS(dBusL1 + 6, z80P1L - 1, z80P21T - 10, 23); SVPS(dBusL1 + 6, z80P21T - 10, dBusT1 + 0, 23);
+		SHPS(dBusL1 + 6, z80P1L - 2, z80P21T - 10, 23); SVPS(dBusL1 + 6, z80P21T - 10, dBusT1 + 0, 23);
 		SHPS(dBusL1 + 6, dBusL2 + 0, dBusT1 + 1, 23); SVPS(dBusL2 + 1, dBusT2 + 1, dBusT1 + 0, 23);
 		SHPS(dBusL2 + 1, ramBusR + 8, dBusT2 + 1, 23);
-		SVPS(romBusR + 9, dBusT2 + 1, romP21T - 4, 23); SHPS(romP21L, romBusR + 8, romP21T - 3, 23);
-		SVPS(ramBusR + 9, dBusT2 + 1, ramP21T - 4, 23); SHPS(ramP21L, ramBusR + 8, ramP21T - 3, 23);
+		SVPS(romBusR + 9, dBusT2 + 1, romP21T - 4, 23); SHPS(romP21L + 1, romBusR + 8, romP21T - 3, 23);
+		SVPS(ramBusR + 9, dBusT2 + 1, ramP21T - 4, 23); SHPS(ramP21L + 1, ramBusR + 8, ramP21T - 3, 23);
 		// d7
-		SHPS(dBusL1 + 7, z80P1L - 1, z80P21T - 7, 24); SVPS(dBusL1 + 7, z80P21T - 7, dBusT1 - 1, 24);
+		SHPS(dBusL1 + 7, z80P1L - 2, z80P21T - 7, 24); SVPS(dBusL1 + 7, z80P21T - 7, dBusT1 - 1, 24);
 		SHPS(dBusL1 + 7, dBusL2 - 1, dBusT1 + 0, 24); SVPS(dBusL2 + 0, dBusT2 + 0, dBusT1 - 1, 24);
 		SHPS(dBusL2 + 0, ramBusR + 7, dBusT2 + 0, 24);
-		SVPS(romBusR + 8, dBusT2 + 0, romP21T - 5, 24); SHPS(romP21L, romBusR + 7, romP21T - 4, 24);
-		SVPS(ramBusR + 8, dBusT2 + 0, ramP21T - 5, 24); SHPS(ramP21L, ramBusR + 7, ramP21T - 4, 24);
+		SVPS(romBusR + 8, dBusT2 + 0, romP21T - 5, 24); SHPS(romP21L + 1, romBusR + 7, romP21T - 4, 24);
+		SVPS(ramBusR + 8, dBusT2 + 0, ramP21T - 5, 24); SHPS(ramP21L + 1, ramBusR + 7, ramP21T - 4, 24);
 	}
 
 	void renderString(Sprite font, vec2 pos, string text, RenderProgram* rp, RenderBuffer* rb) {
@@ -478,6 +480,28 @@ public:
 			"\n"
 			"Z80"
 		, &rp, &rb);
+
+		// indicators
+		INDICATE(bl - 1, bt +  1, 14); INDICATE(br + 1, bt +  1, 13);
+		INDICATE(bl - 1, bt +  2, 15); INDICATE(br + 1, bt +  2, 12);
+		INDICATE(bl - 1, bt +  3, 16); INDICATE(br + 1, bt +  3, 11);
+		                               INDICATE(br + 1, bt +  4, 10);
+		                               INDICATE(br + 1, bt +  5,  9);
+		INDICATE(bl - 1, bt +  6,  0); INDICATE(br + 1, bt +  6,  8);
+		INDICATE(bl - 1, bt +  7, 21); INDICATE(br + 1, bt +  7,  7);
+		INDICATE(bl - 1, bt +  8, 20); INDICATE(br + 1, bt +  8,  6);
+		INDICATE(bl - 1, bt +  9, 22); INDICATE(br + 1, bt +  9,  5);
+		INDICATE(bl - 1, bt + 10, 23); INDICATE(br + 1, bt + 10,  4);
+		                               INDICATE(br + 1, bt + 11,  3);
+		INDICATE(bl - 1, bt + 12, 19); 
+		INDICATE(bl - 1, bt + 13, 24); 
+		INDICATE(bl - 1, bt + 14, 17); 
+		INDICATE(bl - 1, bt + 15, 18); 
+		                               
+		                               
+		                               
+		                               INDICATE(br + 1, bt + 19,  2);
+		                               INDICATE(br + 1, bt + 20,  1);
 	}
 
 	void renderROM () {
@@ -530,6 +554,22 @@ public:
 			"\n"
 			"ROM"
 		, &rp, &rb);
+
+		// indicators
+		                               
+		INDICATE(bl - 1, bt +  2, 15); INDICATE(br + 1, bt +  2,  2);
+		INDICATE(bl - 1, bt +  3, 10);
+		INDICATE(bl - 1, bt +  4,  9); INDICATE(br + 1, bt +  4, 11);
+		INDICATE(bl - 1, bt +  5,  8); INDICATE(br + 1, bt +  5, 12);
+		INDICATE(bl - 1, bt +  6,  7); INDICATE(br + 1, bt +  6, 14);
+		INDICATE(bl - 1, bt +  7,  6); INDICATE(br + 1, bt +  7,  1);
+		INDICATE(bl - 1, bt +  8,  5); INDICATE(br + 1, bt +  8, 13);
+		INDICATE(bl - 1, bt +  9,  4); INDICATE(br + 1, bt +  9, 16);
+		INDICATE(bl - 1, bt + 10,  3); INDICATE(br + 1, bt + 10, 24);
+		INDICATE(bl - 1, bt + 11, 17); INDICATE(br + 1, bt + 11, 23);
+		INDICATE(bl - 1, bt + 12, 18); INDICATE(br + 1, bt + 12, 22);
+		INDICATE(bl - 1, bt + 13, 19); INDICATE(br + 1, bt + 13, 21);
+		                               INDICATE(br + 1, bt + 14, 20);
 	}
 
 	void renderRAM() {
@@ -580,6 +620,22 @@ public:
 			"\n"
 			"RAM"
 		, &rp, &rb);
+
+		// indicators
+		                               
+		INDICATE(bl - 1, bt +  2, 15); INDICATE(br + 1, bt +  2,  2);
+		INDICATE(bl - 1, bt +  3, 10); INDICATE(br + 1, bt +  3, 16);
+		INDICATE(bl - 1, bt +  4,  9); INDICATE(br + 1, bt +  4, 11);
+		INDICATE(bl - 1, bt +  5,  8); INDICATE(br + 1, bt +  5, 12);
+		INDICATE(bl - 1, bt +  6,  7); INDICATE(br + 1, bt +  6, 14);
+		INDICATE(bl - 1, bt +  7,  6); INDICATE(br + 1, bt +  7,  1);
+		INDICATE(bl - 1, bt +  8,  5); INDICATE(br + 1, bt +  8, 13);
+		INDICATE(bl - 1, bt +  9,  4);
+		INDICATE(bl - 1, bt + 10,  3); INDICATE(br + 1, bt + 10, 24);
+		INDICATE(bl - 1, bt + 11, 17); INDICATE(br + 1, bt + 11, 23);
+		INDICATE(bl - 1, bt + 12, 18); INDICATE(br + 1, bt + 12, 22);
+		INDICATE(bl - 1, bt + 13, 19); INDICATE(br + 1, bt + 13, 21);
+		                               INDICATE(br + 1, bt + 14, 20);
 	}
 
 	void renderClock() {
