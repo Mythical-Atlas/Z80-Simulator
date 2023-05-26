@@ -101,7 +101,7 @@ void MapState::update(Window* window, Game* game)  {
     }
     else {canClock = true;}
 
-    circuit.updateSystem();
+    circuit.clockTick();
 
     uint16_t addValFinal = circuit.getAddressBus();
     uint8_t datValFinal = circuit.getDataBus();

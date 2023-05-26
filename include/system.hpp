@@ -7,6 +7,14 @@
 #include "instructions.hpp"
 #include "ops.hpp"
 
+/*
+chips:
+cpu = Zilog Z84C
+ram = Atmel AT28C64B
+rom = Alliance Memory AS6C6264
+uart = Western Design Center W65C51N (68c51? more modern uart?)
+*/
+
 class Circuit {
 public:
     uint8_t instructionFetchControlValues[5 * 8] = {
@@ -203,120 +211,116 @@ public:
         }
     }
 
-    void updateSystem() {
-        if(netValues[0] != oldClock) {
-            oldClock = netValues[0];
+    void updateCPUOperation() {
+        if(mType == 0) {
+            if(currentTCycle == 2 && currentTCycleHalf == 0) {currentInstruction = getDataBus();}
 
-            currentTCycleHalf++;
-            if(currentTCycleHalf == 2) {
-                currentTCycleHalf = 0;
-                currentTCycle++;
-            }
+            if(currentTCycle == 4) {
+                currentTCycle = 0;
+                pcReg++;
 
-            if(mType == 0) {
-                if(currentTCycle == 2 && currentTCycleHalf == 0) {currentInstruction = getDataBus();}
-
-                if(currentTCycle == 4) {
-                    currentTCycle = 0;
-                    pcReg++;
-
-                    if(instructionMCycles[currentInstruction] ==  M_F) {
-                        mType = 0;
-                        currentMCycle = 0;
-                        currentInstruction = -1;
-                    }
-                    else if(
-                        instructionMCycles[currentInstruction] ==  M_FR ||
-                        instructionMCycles[currentInstruction] ==  M_FRR ||
-                        instructionMCycles[currentInstruction] ==  M_FRW ||
-                        instructionMCycles[currentInstruction] ==  M_FTR ||
-                        instructionMCycles[currentInstruction] ==  M_FQR ||
-                        instructionMCycles[currentInstruction] ==  M_DRW ||
-                        instructionMCycles[currentInstruction] ==  M_TRW
-                    ) {
-                        mType = 1;
-                        currentMCycle++;
-                    }
-                    else if(instructionMCycles[currentInstruction] ==  M_FW) {
-                        mType = 2;
-                        currentMCycle++;
-                    }
-                }
-            }
-            if(mType == 1) {
-                if(currentTCycle == 2 && currentTCycleHalf == 1) {
-                    if(currentInstruction == 0x3E) {aReg = getDataBus();}
-                    if(currentInstruction == 0x32) {
-                        if(currentMCycle == 1) {internalAddressBus = getDataBus();}
-                        if(currentMCycle == 2) {internalAddressBus = getDataBus() << 8;}
-                    }
-                }
-
-                if(currentTCycle == 3) {
-                    currentTCycle = 0;
-                    pcReg++;
-
-                    if(
-                        instructionMCycles[currentInstruction] ==  M_FR ||
-                        instructionMCycles[currentInstruction] ==  M_FRR && currentMCycle == 2 ||
-                        instructionMCycles[currentInstruction] ==  M_FTR && currentMCycle == 3 ||
-                        instructionMCycles[currentInstruction] ==  M_FQR && currentMCycle == 4
-                    ) {
-                        mType = 0;
-                        currentMCycle = 0;
-                        currentInstruction = -1;
-                    }
-                    else if(
-                        instructionMCycles[currentInstruction] ==  M_FRR && currentMCycle < 2 ||
-                        instructionMCycles[currentInstruction] ==  M_FTR && currentMCycle < 3 ||
-                        instructionMCycles[currentInstruction] ==  M_FQR && currentMCycle < 4 ||
-                        instructionMCycles[currentInstruction] ==  M_DRW && currentMCycle < 2 ||
-                        instructionMCycles[currentInstruction] ==  M_TRW && currentMCycle < 3
-                    ) {
-                        mType = 1;
-                        currentMCycle++;
-                    }
-                    else if(
-                        instructionMCycles[currentInstruction] ==  M_FRW ||
-                        instructionMCycles[currentInstruction] ==  M_DRW && currentMCycle == 2 ||
-                        instructionMCycles[currentInstruction] ==  M_TRW && currentMCycle == 3
-                    ) {
-                        mType = 2;
-                        currentMCycle++;
-                    }
-                }
-            }
-            if(mType == 2) {
-                if(currentTCycle == 2 && currentTCycleHalf == 1) {setByte(getAddressBus(), aReg);}
-                
-                if(currentTCycle == 3) {
-                    currentTCycle = 0;
-                    pcReg++;
+                if(instructionMCycles[currentInstruction] ==  M_F) {
                     mType = 0;
                     currentMCycle = 0;
                     currentInstruction = -1;
                 }
-            }
-
-            setAddressBus(0);
-            setDataBus(0);
-
-            if(mType == 0) {
-                setControlValues(instructionFetchControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
-                if(currentTCycle == 0 || currentTCycle == 1) {setAddressBus(pcReg);}
-                //if(currentTCycle == 2 || currentTCycle == 3) {setAddressBus(0);}
-            }
-            if(mType == 1) {
-                setControlValues(memoryReadControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
-                if(instructionAddressing[currentInstruction] == A_I) {setAddressBus(pcReg);}
-            }
-            if(mType == 2) {
-                setControlValues(memoryWriteControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
-                setAddressBus(internalAddressBus);
-                if(currentTCycle == 0 && currentTCycleHalf == 1 || currentTCycle >= 1) {setDataBus(aReg);}
+                else if(
+                    instructionMCycles[currentInstruction] ==  M_FR ||
+                    instructionMCycles[currentInstruction] ==  M_FRR ||
+                    instructionMCycles[currentInstruction] ==  M_FRW ||
+                    instructionMCycles[currentInstruction] ==  M_FTR ||
+                    instructionMCycles[currentInstruction] ==  M_FQR ||
+                    instructionMCycles[currentInstruction] ==  M_DRW ||
+                    instructionMCycles[currentInstruction] ==  M_TRW
+                ) {
+                    mType = 1;
+                    currentMCycle++;
+                }
+                else if(instructionMCycles[currentInstruction] ==  M_FW) {
+                    mType = 2;
+                    currentMCycle++;
+                }
             }
         }
+        if(mType == 1) {
+            if(currentTCycle == 2 && currentTCycleHalf == 1) {
+                if(currentInstruction == 0x3E) {aReg = getDataBus();}
+                if(currentInstruction == 0x32) {
+                    if(currentMCycle == 1) {internalAddressBus = getDataBus();}
+                    if(currentMCycle == 2) {internalAddressBus = getDataBus() << 8;}
+                }
+            }
 
+            if(currentTCycle == 3) {
+                currentTCycle = 0;
+                pcReg++;
+
+                if(
+                    instructionMCycles[currentInstruction] ==  M_FR ||
+                    instructionMCycles[currentInstruction] ==  M_FRR && currentMCycle == 2 ||
+                    instructionMCycles[currentInstruction] ==  M_FTR && currentMCycle == 3 ||
+                    instructionMCycles[currentInstruction] ==  M_FQR && currentMCycle == 4
+                ) {
+                    mType = 0;
+                    currentMCycle = 0;
+                    currentInstruction = -1;
+                }
+                else if(
+                    instructionMCycles[currentInstruction] ==  M_FRR && currentMCycle < 2 ||
+                    instructionMCycles[currentInstruction] ==  M_FTR && currentMCycle < 3 ||
+                    instructionMCycles[currentInstruction] ==  M_FQR && currentMCycle < 4 ||
+                    instructionMCycles[currentInstruction] ==  M_DRW && currentMCycle < 2 ||
+                    instructionMCycles[currentInstruction] ==  M_TRW && currentMCycle < 3
+                ) {
+                    mType = 1;
+                    currentMCycle++;
+                }
+                else if(
+                    instructionMCycles[currentInstruction] ==  M_FRW ||
+                    instructionMCycles[currentInstruction] ==  M_DRW && currentMCycle == 2 ||
+                    instructionMCycles[currentInstruction] ==  M_TRW && currentMCycle == 3
+                ) {
+                    mType = 2;
+                    currentMCycle++;
+                }
+            }
+        }
+        if(mType == 2) {
+            if(currentTCycle == 2 && currentTCycleHalf == 1) {setByte(getAddressBus(), aReg);}
+            
+            if(currentTCycle == 3) {
+                currentTCycle = 0;
+                pcReg++;
+                mType = 0;
+                currentMCycle = 0;
+                currentInstruction = -1;
+            }
+        }
+    }
+
+    void updateCPUBusses() {
+        setAddressBus(0);
+        setDataBus(0);
+
+        if(mType == 0) {
+            setControlValues(instructionFetchControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
+            if(currentTCycle == 0 || currentTCycle == 1) {setAddressBus(pcReg);}
+
+            // refresh
+            //if(currentTCycle == 2 || currentTCycle == 3) {setAddressBus(0);}
+        }
+        if(mType == 1) {
+            setControlValues(memoryReadControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
+            if(instructionAddressing[currentInstruction] == A_I) {setAddressBus(pcReg);}
+        }
+        if(mType == 2) {
+            setControlValues(memoryWriteControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
+            setAddressBus(internalAddressBus);
+            if(currentTCycle == 0 && currentTCycleHalf == 1 || currentTCycle >= 1) {setDataBus(aReg);}
+        }
+    }
+
+    void updateMemory() {
         if(netValues[1] == 3) { // read
             uint16_t addressValue = getAddressBus() & 0xFFF;
             
@@ -332,6 +336,26 @@ public:
 
                 setDataBus(dataValue);
             }
+        }
+    }
+
+    void updateSystem() {
+
+        currentTCycleHalf++;
+        if(currentTCycleHalf == 2) {
+            currentTCycleHalf = 0;
+            currentTCycle++;
+        }
+
+        updateCPUOperation();
+        updateCPUBusses();
+        updateMemory();
+    }
+
+    void clockTick() {
+        if(netValues[0] != oldClock) {
+            oldClock = netValues[0];
+            updateSystem();
         }
     }
 };
