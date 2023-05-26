@@ -84,9 +84,11 @@ public:
 	Controller controller;
 	AudioMixer mixer;
 
+	Texture invertFontTexture;
 	Texture fontTexture;
 	Texture wireTexture;
 
+	Sprite invertFontSprite;
 	Sprite fontSprite;
 	Sprite wireSprite;
 
@@ -733,7 +735,7 @@ public:
 			if(instruction >= 0x00 && instruction <= 0x3F) {
 				if(instruction % 8 == 6) {output += "Immediate Byte Into ";}
 				if(instruction % 16 == 1) {output += "Immediate Short Into ";}
-				if(instruction % 8 == 6) {output += "Indirect Byte Pointed To by HL Into ";}
+				if(instruction == 0x36) {output += "Indirect Byte Pointed To by HL Into ";}
 				if(instruction == 0x0A) {output += "Indirect Byte Pointed To by BC Into ";}
 				if(instruction == 0x1A) {output += "Indirect Byte Pointed To by DE Into ";}
 				if(instruction == 0x2A) {output += "Indirect Short Pointed To by Immediate Short Into ";}
@@ -849,6 +851,10 @@ public:
 		if(instructionMCycles[instruction] == M_FRW) {return "(3): Fetch, Read, Write";}
 		if(instructionMCycles[instruction] == M_FTR) {return "(4): Fetch, Read, Read, Read";}
 		if(instructionMCycles[instruction] == M_FQR) {return "(5): Fetch, Read, Read, Read, Read";}
+		if(instructionMCycles[instruction] == M_DRW) {return "(4): Fetch, Read, Read, Write";}
+		if(instructionMCycles[instruction] == M_TRW) {return "(5): Fetch, Read, Read, Read, Write";}
+
+		return "";
 	}
 	string decodeTCycles(int instruction) {
 		if(instructionMCycles[instruction] == M_F) {return "(4): 4";}
@@ -858,6 +864,10 @@ public:
 		if(instructionMCycles[instruction] == M_FRW) {return "(10): 4, 3, 3";}
 		if(instructionMCycles[instruction] == M_FTR) {return "(13): 4, 3, 3, 3";}
 		if(instructionMCycles[instruction] == M_FQR) {return "(16): 4, 3, 3, 3, 3";}
+		if(instructionMCycles[instruction] == M_DRW) {return "(13): 4, 3, 3, 3";}
+		if(instructionMCycles[instruction] == M_TRW) {return "(16): 4, 3, 3, 3, 3";}
+
+		return "";
 	}
 };
 

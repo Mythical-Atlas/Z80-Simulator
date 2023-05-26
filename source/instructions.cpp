@@ -1,11 +1,12 @@
 #include "instructions.hpp"
+#include "ops.hpp"
 
 uint8_t instructionMCycles[0x100] = {
 //  0x_0   0x_1   0x_2   0x_3   0x_4   0x_5   0x_6   0x_7   0x_8   0x_9   0x_A   0x_B   0x_C   0x_D   0x_E   0x_F
 	M_F  , M_FRR, M_FW , M_X  , M_F  , M_F  , M_FR , M_F  , M_F  , M_X  , M_FR , M_X  , M_F  , M_F  , M_FR , M_F  , // 0x0_
 	M_X  , M_FRR, M_FW , M_X  , M_F  , M_F  , M_FR , M_F  , M_X  , M_X  , M_FR , M_X  , M_F  , M_F  , M_FR , M_F  , // 0x1_
-	M_X  , M_FRR, M_FW , M_X  , M_F  , M_F  , M_FR , M_F  , M_X  , M_X  , M_FQR, M_X  , M_F  , M_F  , M_FR , M_F  , // 0x2_
-	M_X  , M_FRR, M_FW , M_X  , M_X  , M_X  , M_FRW, M_F  , M_X  , M_X  , M_FTR, M_X  , M_F  , M_F  , M_FR , M_F  , // 0x3_
+	M_X  , M_FRR, M_TRW, M_X  , M_F  , M_F  , M_FR , M_F  , M_X  , M_X  , M_FQR, M_X  , M_F  , M_F  , M_FR , M_F  , // 0x2_
+	M_X  , M_FRR, M_DRW, M_X  , M_X  , M_X  , M_FRW, M_F  , M_X  , M_X  , M_FTR, M_X  , M_F  , M_F  , M_FR , M_F  , // 0x3_
 	M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_FR , M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_FR , M_F  , // 0x4_
 	M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_FR , M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_FR , M_F  , // 0x5_
 	M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_FR , M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_F  , M_FR , M_F  , // 0x6_
@@ -37,4 +38,24 @@ uint8_t instructionSizes[0x100] = {
 	1,     1,     3,     2,     3,     1,     2,     1,     1,     1,     3,     2,     3,     0,     2,     1,     // 0xD_
 	1,     1,     3,     1,     3,     1,     2,     1,     1,     1,     3,     1,     3,     0,     2,     1,     // 0xE_
 	1,     1,     3,     1,     3,     1,     2,     1,     1,     1,     3,     1,     3,     0,     2,     1,     // 0xF_
+};
+
+int instructionAddressing[0x100] = {
+//  0x_0   0x_1   0x_2   0x_3   0x_4   0x_5   0x_6   0x_7   0x_8   0x_9   0x_A   0x_B   0x_C   0x_D   0x_E   0x_F
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     A_I,   0,     // 0x0_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     A_I,   0,     // 0x1_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     A_I,   0,     // 0x2_
+	0,     0,     A_I,   0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     A_I,   0,     // 0x3_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0x4_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0x5_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0x6_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0x7_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0x8_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0x9_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0xA_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0xB_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0xC_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0xD_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0xE_
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     // 0xF_
 };

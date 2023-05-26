@@ -13,6 +13,10 @@
 #define GRAPHS_Y 47
 #define INFO_X   111
 #define INFO_Y   1
+#define ROM_X 130
+#define ROM_Y 20
+#define RAM_X 130
+#define RAM_Y 40
 
 using namespace std;
 
@@ -24,16 +28,19 @@ void MapState::load()  {
 
 	fontTexture.load("resources/font.png");
     wireTexture.load("resources/wires.png");
+    invertFontTexture.load("resources/inverted font.png");
 
     fontSprite.init(&fontTexture, 0, 0, 0, 8, 12); // 512x144
     wireSprite.init(&wireTexture, 1, 0, 0, 8, 12); // 112x48
+    invertFontSprite.init(&invertFontTexture, 0, 0, 0, 8, 12); // 512x144
 
     int attribSizes[2] = {2, 2};
-    rb = RenderBuffer(2, attribSizes, 2 * VERTS_SIZE);
+    rb = RenderBuffer(2, attribSizes, 3 * VERTS_SIZE);
 
     float vertDataBuffer[VERTS_SIZE];
     fontSprite.getData(vertDataBuffer); rb.uploadData(0 * VERTS_SIZE, VERTS_SIZE, vertDataBuffer);
     wireSprite.getData(vertDataBuffer); rb.uploadData(1 * VERTS_SIZE, VERTS_SIZE, vertDataBuffer);
+    invertFontSprite.getData(vertDataBuffer); rb.uploadData(2 * VERTS_SIZE, VERTS_SIZE, vertDataBuffer);
 }
 void MapState::init(Window* window, Game* game)  {
     cam.init((int)window->getScreenSize().x, (int)window->getScreenSize().y);
@@ -157,9 +164,35 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
     renderCircuit();
 
+    for(int y = 0; y < 16; y++) {
+        renderString(fontSprite, vec2(ROM_X, ROM_Y + y) * vec2(8, 12), "0x" + circuit.hex16(y * 16) + ": ", &rp, &rb);
+        for(int x = 0; x < 16; x++) {
+            if(x + y * 16 == circuit.getAddressBus() && (circuit.netValues[1] == 3 || circuit.netValues[2] == 3)) {
+                renderString(invertFontSprite, vec2(ROM_X + (x * 3) + 8, ROM_Y + y) * vec2(8, 12), circuit.hex8(circuit.rom[x + y * 16]), &rp, &rb);
+            }
+            else {
+                renderString(fontSprite, vec2(ROM_X + (x * 3) + 8, ROM_Y + y) * vec2(8, 12), circuit.hex8(circuit.rom[x + y * 16]), &rp, &rb);
+            }
+        }
+    }
+
+    for(int y = 0; y < 16; y++) {
+        renderString(fontSprite, vec2(RAM_X, RAM_Y + y) * vec2(8, 12), "0x" + circuit.hex16(y * 16 + 0x1000) + ": ", &rp, &rb);
+        for(int x = 0; x < 16; x++) {
+            if(x + y * 16 + 0x1000 == circuit.getAddressBus() && (circuit.netValues[1] == 3 || circuit.netValues[2] == 3)) {
+                renderString(invertFontSprite, vec2(RAM_X + (x * 3) + 8, RAM_Y + y) * vec2(8, 12), circuit.hex8(circuit.ram[x + y * 16]), &rp, &rb);
+            }
+            else {
+                renderString(fontSprite, vec2(RAM_X + (x * 3) + 8, RAM_Y + y) * vec2(8, 12), circuit.hex8(circuit.ram[x + y * 16]), &rp, &rb);
+            }
+        }
+    }
+
     renderString(fontSprite, vec2(INFO_X, INFO_Y) * vec2(8, 12), "Address Bus: 0x" + circuit.hex16(circuit.getAddressBus()), &rp, &rb);
     renderString(fontSprite, vec2(INFO_X, INFO_Y + 1) * vec2(8, 12), "Data Bus: 0x" + circuit.hex8(circuit.getDataBus()), &rp, &rb);
-    renderString(fontSprite, vec2(INFO_X, INFO_Y + 3) * vec2(8, 12), "PC: 0x" + circuit.hex16(circuit.pc), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X, INFO_Y + 2) * vec2(8, 12), "Internal Address Bus: 0x" + circuit.hex16(circuit.internalAddressBus), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X, INFO_Y + 3) * vec2(8, 12), "PC: 0x" + circuit.hex16(circuit.pcReg), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X, INFO_Y + 4) * vec2(8, 12), "A: 0x" + circuit.hex8(circuit.aReg), &rp, &rb);
 
     if(circuit.currentTCycleHalf == 0) {renderString(fontSprite, vec2(INFO_X, INFO_Y + 5) * vec2(8, 12), "First Half of T Cycle (Clock Just Rose)", &rp, &rb);}
     else if(circuit.currentTCycleHalf == 1) {renderString(fontSprite, vec2(INFO_X, INFO_Y + 5) * vec2(8, 12), "Second Half of T Cycle (Clock Just Fell)", &rp, &rb);}

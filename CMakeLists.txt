@@ -12,6 +12,7 @@ add_executable(z80
 	include/instructions.hpp	source/instructions.cpp
 	include/main.hpp 			source/main.cpp
 	include/mapState.hpp		source/mapState.cpp
+	include/ops.hpp				source/ops.cpp
 	include/renderBuffer.hpp 	source/renderBuffer.cpp
 	include/renderProgram.hpp 	source/renderProgram.cpp
 	include/system.hpp			source/system.cpp

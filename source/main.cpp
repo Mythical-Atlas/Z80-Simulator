@@ -7,14 +7,11 @@
 #include "audio.hpp"
 #include "game.hpp"
 
-// 3ds: osGetTime();
-// pc: ???
-
 using namespace std;
 
 int main(int argc, char* args[]) {
 	Window window;
-	window.init(false, 1280, 1000, "Zilog Z80 Simulator");
+	window.init(false, 1900, 1000, "Zilog Z80 Simulator");
 
 	Game game;
 	game.init(&window);
