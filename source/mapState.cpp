@@ -144,7 +144,7 @@ void MapState::update(Window* window, Game* game)  {
 }
 
 void MapState::render(Window* window, Game* game)  { // TODO: layering using z position
-    if(timeSinceInit - debugPrintTimer >= 1000) {
+    /*if(timeSinceInit - debugPrintTimer >= 1000) {
         PROCESS_MEMORY_COUNTERS_EX pmc;
         GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 		SIZE_T virtualMemUsedByMe = pmc.PrivateUsage;
@@ -156,13 +156,18 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
         ticksSinceLastDebugPrint = 0;
         while(timeSinceInit - debugPrintTimer >= 1000) {debugPrintTimer += 1000;}
-    }
+    }*/
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     rp.useViewMatrix(&cam);
 
     renderCircuit();
+
+    renderString(fontSprite, vec2(INFO_X + 50, INFO_Y) * vec2(8, 12), "Address Latch: 0x" + circuit.hex16(circuit.addressLatch), &rp, &rb);
+    renderString(fontSprite, vec2(INFO_X + 50, INFO_Y + 1) * vec2(8, 12), "Data Latch (0xHH LL): 0x" + circuit.hex8(circuit.dataLatchHigh) + " " + circuit.hex8(circuit.dataLatchLow), &rp, &rb);
+    if(circuit.appearingOnAddress == 0) {renderString(fontSprite, vec2(INFO_X + 50, INFO_Y + 3) * vec2(8, 12), "PC is appearing on address bus", &rp, &rb);}
+    if(circuit.appearingOnAddress == 1) {renderString(fontSprite, vec2(INFO_X + 50, INFO_Y + 3) * vec2(8, 12), "Address latch is appearing on address bus", &rp, &rb);}
 
     for(int y = 0; y < 16; y++) {
         renderString(fontSprite, vec2(ROM_X, ROM_Y + y) * vec2(8, 12), "0x" + circuit.hex16(y * 16) + ": ", &rp, &rb);
@@ -190,7 +195,7 @@ void MapState::render(Window* window, Game* game)  { // TODO: layering using z p
 
     renderString(fontSprite, vec2(INFO_X, INFO_Y) * vec2(8, 12), "Address Bus: 0x" + circuit.hex16(circuit.getAddressBus()), &rp, &rb);
     renderString(fontSprite, vec2(INFO_X, INFO_Y + 1) * vec2(8, 12), "Data Bus: 0x" + circuit.hex8(circuit.getDataBus()), &rp, &rb);
-    renderString(fontSprite, vec2(INFO_X, INFO_Y + 2) * vec2(8, 12), "Internal Address Bus: 0x" + circuit.hex16(circuit.internalAddressBus), &rp, &rb);
+    //renderString(fontSprite, vec2(INFO_X, INFO_Y + 2) * vec2(8, 12), "Internal Address Bus: 0x" + circuit.hex16(circuit.internalAddressBus), &rp, &rb);
     renderString(fontSprite, vec2(INFO_X, INFO_Y + 3) * vec2(8, 12), "PC: 0x" + circuit.hex16(circuit.pcReg), &rp, &rb);
     renderString(fontSprite, vec2(INFO_X, INFO_Y + 4) * vec2(8, 12), "A: 0x" + circuit.hex8(circuit.aReg), &rp, &rb);
 

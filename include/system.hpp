@@ -81,8 +81,12 @@ public:
     uint16_t pcReg;
     uint8_t aReg;
 
-    uint16_t internalAddressBus;
-    uint8_t internalDataBus;
+    uint16_t addressLatch;
+    uint8_t dataLatchLow;
+    uint8_t dataLatchHigh;
+
+    bool shouldOperate;
+    int appearingOnAddress;
 
     void initSystem() {
         memset(netValues, 3, 27 * sizeof(uint8_t));
@@ -100,8 +104,12 @@ public:
         currentInstruction = -1;
         pcReg = 0;
 
-        internalAddressBus = 0;
-        internalDataBus = 0;
+        addressLatch = 0;
+        dataLatchLow = 0;
+        dataLatchHigh = 0;
+
+        shouldOperate = false;
+        appearingOnAddress = 0;
     }
 
     void setControlValues(uint8_t* values, int offset) {
@@ -223,6 +231,7 @@ public:
                     mType = 0;
                     currentMCycle = 0;
                     currentInstruction = -1;
+                    shouldOperate = true;
                 }
                 else if(
                     instructionMCycles[currentInstruction] ==  M_FR ||
@@ -244,16 +253,15 @@ public:
         }
         if(mType == 1) {
             if(currentTCycle == 2 && currentTCycleHalf == 1) {
-                if(currentInstruction == 0x3E) {aReg = getDataBus();}
-                if(currentInstruction == 0x32) {
-                    if(currentMCycle == 1) {internalAddressBus = getDataBus();}
-                    if(currentMCycle == 2) {internalAddressBus = getDataBus() << 8;}
-                }
+                if(currentMCycle == 1) {dataLatchLow = getDataBus();}
+                if(currentMCycle == 2) {dataLatchHigh = getDataBus() << 8;}
             }
 
             if(currentTCycle == 3) {
                 currentTCycle = 0;
                 pcReg++;
+
+                if(currentMCycle == instructionSizes[currentInstruction] - 1) {shouldOperate = true;}
 
                 if(
                     instructionMCycles[currentInstruction] ==  M_FR ||
@@ -286,7 +294,7 @@ public:
             }
         }
         if(mType == 2) {
-            if(currentTCycle == 2 && currentTCycleHalf == 1) {setByte(getAddressBus(), aReg);}
+            if(currentTCycle == 2 && currentTCycleHalf == 1) {setByte(getAddressBus(), getDataBus());}
             
             if(currentTCycle == 3) {
                 currentTCycle = 0;
@@ -311,12 +319,23 @@ public:
         }
         if(mType == 1) {
             setControlValues(memoryReadControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
-            if(instructionAddressing[currentInstruction] == A_I) {setAddressBus(pcReg);}
+
+            if(!shouldOperate) {
+                setAddressBus(pcReg);
+                appearingOnAddress = 0;
+            }
+            else {
+                setAddressBus(addressLatch);
+                appearingOnAddress = 1;
+            }
         }
         if(mType == 2) {
             setControlValues(memoryWriteControlValues, (currentTCycleHalf + currentTCycle * 2) * 5);
-            setAddressBus(internalAddressBus);
-            if(currentTCycle == 0 && currentTCycleHalf == 1 || currentTCycle >= 1) {setDataBus(aReg);}
+            
+            setAddressBus(addressLatch);
+            if(currentTCycle == 0 && currentTCycleHalf == 1 || currentTCycle >= 1) {
+                setDataBus(dataLatchLow); // check fo rhigh
+            }
         }
     }
 
@@ -340,21 +359,27 @@ public:
     }
 
     void updateSystem() {
-
-        currentTCycleHalf++;
-        if(currentTCycleHalf == 2) {
-            currentTCycleHalf = 0;
-            currentTCycle++;
-        }
-
         updateCPUOperation();
         updateCPUBusses();
         updateMemory();
+
+        if(shouldOperate) {
+            shouldOperate = false;
+
+            
+        }
     }
 
     void clockTick() {
         if(netValues[0] != oldClock) {
             oldClock = netValues[0];
+
+            currentTCycleHalf++;
+            if(currentTCycleHalf == 2) {
+                currentTCycleHalf = 0;
+                currentTCycle++;
+            }
+
             updateSystem();
         }
     }

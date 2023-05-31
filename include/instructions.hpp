@@ -18,7 +18,8 @@
 // minimum t-cycles for 2 byte instruction: 7
 // minimum t-cycles for 3 byte instruction: 10
 
-#define A_IM  1 // immediate
+#define A_IMB 1 // immediate byte
+#define A_IMS 18 // immediate short
 #define A_A   2 // reg a
 #define A_B   3 // reg b
 #define A_C   4 // reg c
@@ -32,9 +33,9 @@
 #define A_IDE 12 // indirect using de
 #define A_IHL 13 // indirect using hl
 #define A_IIM 14 // indirect using immediate
-#define A_BC  3 // regs bc
-#define A_DE  4 // regs de
-#define A_HL  5 // regs hl
+#define A_BC  15 // regs bc
+#define A_DE  16 // regs de
+#define A_HL  17 // regs hl
 extern uint8_t instructionMCycles[0x100];
 extern uint8_t instructionSizes[0x100];
 extern int instructionAddressing[0x100];
